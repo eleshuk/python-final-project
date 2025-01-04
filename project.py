@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
-from datetime import datetime
 
 # def main():
 #     farm_data = get_farm_input()

@@ -5,7 +5,7 @@ import openmeteo_requests
 import requests_cache
 from retry_requests import retry
 import requests
-from scipy.signal import find_peaks
+
 
 
 def main():
@@ -69,7 +69,7 @@ class weatherData:
         # Initialize instance attributes
         self.latitude = inputs['latitude']
         self.longitude = inputs['longitude']
-        self.start_date = '2024-06-01'
+        self.start_date = '2023-06-01'
         self.end_date = date.today()
         
         # Set up the Open-Meteo API client with caching and retries

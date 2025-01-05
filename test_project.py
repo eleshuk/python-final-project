@@ -35,7 +35,7 @@ def test_invalid_dates(monkeypatch):
 
 # Test to ensure that API call didn't fail
 @responses.activate
-def test_fetch_and_clean_open_meteo_data_success():
+def test_pull_weather_data():
     user_inputs = {
             "latitude": 39.3999,
             "longitude": -8.2245,

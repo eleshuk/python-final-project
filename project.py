@@ -1,17 +1,19 @@
-from datetime import datetime
+from datetime import datetime, date
 import pandas as pd
 import matplotlib.pyplot as plt
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
 import requests
+from scipy.signal import find_peaks
 
 
 def main():
     farm_data = get_farm_input()
-    print("Collected inputs:", farm_data)# Get user inputs
-    weather_df = get_weather_data(farm_data)
-    weather_data_plot(weather_df=weather_df)
+    print("Collected inputs:", farm_data)
+    weather = weatherData(farm_data) 
+    daily_weather_df = weather.get_weather_data()
+    weather_data_plot(weather_df=daily_weather_df)
 
 def get_farm_input():
     """
@@ -62,64 +64,63 @@ def get_farm_input():
     }
 
 # Get weather data from API
-def get_weather_data(inputs):
-    # If inputs is going to be used multiple times throughout the code, then put it outside of get_weather_data
-    # inputs = get_farm_input()
-    lat = inputs['latitude']
-    long = inputs['longitude']
-    start_date = inputs['start_date']
-    end_date = inputs['end_date']
+class weatherData:
+    def __init__(self, inputs):
+        # Initialize instance attributes
+        self.latitude = inputs['latitude']
+        self.longitude = inputs['longitude']
+        self.start_date = '2024-06-01'
+        self.end_date = date.today()
+        
+        # Set up the Open-Meteo API client with caching and retries
+        self.cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
+        self.retry_session = retry(self.cache_session, retries=5, backoff_factor=0.2)
+        self.client = openmeteo_requests.Client(session=self.retry_session)
+        self.url = "https://historical-forecast-api.open-meteo.com/v1/forecast"
 
-    # Setup the Open-Meteo API client with cache and retry on error
-    cache_session = requests_cache.CachedSession('.cache', expire_after = 3600)
-    retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
-    openmeteo = openmeteo_requests.Client(session = retry_session)
+    def get_weather_data(self):
+        # Prepare request parameters
+        params = {
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "daily": ["temperature_2m_max", "temperature_2m_min", "precipitation_sum"]
+        }
+        
+        # Make the API request
+        responses = self.client.weather_api(self.url, params=params)
+        response = responses[0]
 
-    # Make sure all required weather variables are listed here
-    # The order of variables in hourly or daily is important to assign them correctly below
-    url = "https://historical-forecast-api.open-meteo.com/v1/forecast"
-    params = {
-        "latitude": lat,
-        "longitude": long,
-        "start_date": start_date,
-        "end_date": end_date,
-        "daily": ["temperature_2m_max", "temperature_2m_min", "precipitation_sum"]
-    }
-    # Make the API request
-    responses = openmeteo.weather_api(url, params=params)
-    response = responses[0]
+        # Process daily data
+        daily = response.Daily()
+        daily_temperature_2m_max = daily.Variables(0).ValuesAsNumpy()
+        daily_temperature_2m_min = daily.Variables(1).ValuesAsNumpy()
+        daily_precipitation_sum = daily.Variables(2).ValuesAsNumpy()
+        
+        # Create a DataFrame with the processed data
+        daily_data = {
+            "date": pd.date_range(
+                start=pd.to_datetime(daily.Time(), unit="s", utc=True),
+                end=pd.to_datetime(daily.TimeEnd(), unit="s", utc=True),
+                freq=pd.Timedelta(seconds=daily.Interval()),
+                inclusive="left"
+            ),
+            "TemperatureMax": daily_temperature_2m_max,
+            "TemperatureMin": daily_temperature_2m_min,
+            "Precipitation": daily_precipitation_sum
+        }
+        daily_dataframe = pd.DataFrame(data=daily_data)
 
-    # Process daily data. The order of variables needs to be the same as requested.
-    daily = response.Daily()
-    daily_temperature_2m_max = daily.Variables(0).ValuesAsNumpy()
-    daily_temperature_2m_min = daily.Variables(1).ValuesAsNumpy()
-    daily_precipitation_sum = daily.Variables(2).ValuesAsNumpy()
-    
-    daily_data = {"date": pd.date_range(
-        start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
-        end = pd.to_datetime(daily.TimeEnd(), unit = "s", utc = True),
-        freq = pd.Timedelta(seconds = daily.Interval()),
-        inclusive = "left"
-    )}
+        # Format and clean the DataFrame
+        daily_dataframe['Date'] = daily_dataframe['date'].dt.strftime('%Y-%m-%d')
+        daily_dataframe = daily_dataframe.drop(columns=['date'])
 
-    daily_data["TemperatureMax"] = daily_temperature_2m_max
-    daily_data["TemperatureMin"] = daily_temperature_2m_min
-    daily_data["Precipitation"] = daily_precipitation_sum
-    
-    daily_dataframe = pd.DataFrame(data = daily_data)
-    # Convert date to date format (not datetime)
-    daily_dataframe['Date'] = daily_dataframe['date'].dt.strftime('%Y-%m-%d')
-    daily_dataframe = daily_dataframe.drop(columns=['date'])
-
-    # Drop NA values
-    # Specify the columns to check
-    columns_to_check = ['TemperatureMax', 'TemperatureMin', 'Precipitation']
-
-# Drop rows where all values in the specified columns are NA
-    daily_dataframe = daily_dataframe.dropna(subset=columns_to_check, how='all')
-    # print("collected API data")
-
-    return daily_dataframe
+        # Drop rows with all NA values in specific columns
+        columns_to_check = ['TemperatureMax', 'TemperatureMin', 'Precipitation']
+        daily_dataframe = daily_dataframe.dropna(subset=columns_to_check, how='all')
+        
+        return daily_dataframe
 
 '''
 STILL NEEDS TESTING ONCE DF IS READY

@@ -4,10 +4,14 @@ import matplotlib.pyplot as plt
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
+import requests
 
-# def main():
-#     farm_data = get_farm_input()
-#     print("Collected inputs:", farm_data)
+
+def main():
+    farm_data = get_farm_input()
+    print("Collected inputs:", farm_data)# Get user inputs
+    weather_df = get_weather_data(farm_data)
+    weather_data_plot(weather_df=weather_df)
 
 def get_farm_input():
     """
@@ -58,9 +62,6 @@ def get_farm_input():
     }
 
 # Get weather data from API
-# Get user inputs
-user_inputs = get_farm_input()
-
 def get_weather_data(inputs):
     # If inputs is going to be used multiple times throughout the code, then put it outside of get_weather_data
     # inputs = get_farm_input()
@@ -110,6 +111,12 @@ def get_weather_data(inputs):
     daily_dataframe['Date'] = daily_dataframe['date'].dt.strftime('%Y-%m-%d')
     daily_dataframe = daily_dataframe.drop(columns=['date'])
 
+    # Drop NA values
+    # Specify the columns to check
+    columns_to_check = ['TemperatureMax', 'TemperatureMin', 'Precipitation']
+
+# Drop rows where all values in the specified columns are NA
+    daily_dataframe = daily_dataframe.dropna(subset=columns_to_check, how='all')
     # print("collected API data")
 
     return daily_dataframe
@@ -119,9 +126,6 @@ STILL NEEDS TESTING ONCE DF IS READY
 input: a dataframe of weather across a date range, for a specific location
 output: plot of max temperature, min temperature and precipitation
 '''
-# Get weather df to pass to this plot
-# Leave outside of function for now since this data could be used in other functions
-weather_df = get_weather_data(inputs = user_inputs)
 
 def weather_data_plot(weather_df):
     # create the plot
@@ -137,7 +141,7 @@ def weather_data_plot(weather_df):
     plt.show()
     return 'Plot successfully created'
 
-weather_data_plot(weather_df=weather_df)
 
-# if __name__ == "__main__":
-#     main()
+
+if __name__ == "__main__":
+    main()

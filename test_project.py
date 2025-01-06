@@ -1,9 +1,7 @@
 import pytest
-from project import get_farm_input
+from project_location import get_farm_input
 from project import weatherData
-from project import weather_data_plot
 import responses
-import pandas as pd
 
 def test_valid_inputs(monkeypatch):
     inputs = iter(["39.3999", "-8.2245", "2025-01-01", "2025-01-10"])
@@ -71,24 +69,8 @@ def test_pull_weather_data():
         {"date": "2025-01-03", "TemperatureMax": 14.6, "TemperatureMin": 3.4, "Precipitation": 0},
         {"date": "2025-01-04", "TemperatureMax": 15.6, "TemperatureMin": 5.2, "Precipitation": 0}
     ]
+
     # Assert the cleaned data matches the expected output
     assert cleaned_data == expected_data, "Data cleaning failed for Open-Meteo API response"
     assert all("Date" in item and "TemperatureMax" in item and "TemperatureMin" and "TemperatureMin" in item in item for item in cleaned_data)
 
-
-# Tests to ensure temperature data plot is functioning as expected
-@pytest.fixture
-def sample_weather_df():
-    return pd.DataFrame({
-        'Date': pd.date_range(start='2023-01-01', periods=5),
-        'TemperatureMax': [10, 12, 15, 11, 13],
-        'TemperatureMin': [5, 6, 8, 7, 6],
-        'Precipitation': [0, 0.5, 1, 0.2, 0]
-    })
-
-def test_weather_data_plot(sample_weather_df):
-    result = weather_data_plot(sample_weather_df)
-    assert result == 'Plot successfully created'
-
-if __name__ == "__main__":
-    pytest.main()

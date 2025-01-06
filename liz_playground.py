@@ -1,6 +1,8 @@
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 from project import weatherData, get_farm_input
+from plotnine import ggplot, aes, geom_line, geom_point, geom_hline, theme_minimal, labs, ggtitle, scale_color_manual, element_text
+
 
 farm_data = get_farm_input()
 weather = weatherData(farm_data)

@@ -92,6 +92,17 @@ def test_weather_data_plot(sample_weather_df):
         result = weather_data_plot(sample_weather_df)
     assert result == 'Plot successfully created'
 
+def test_weather_data_plot_empty_dataframe():
+    empty_df = pd.DataFrame(columns=['Date', 'TemperatureMax', 'TemperatureMin', 'Precipitation'])
+    with patch('matplotlib.pyplot.show'):
+        result = weather_data_plot(empty_df)
+    assert result == 'Plot successfully created'
+
+def test_weather_data_plot_exception_handling():
+    invalid_df = pd.DataFrame({'InvalidColumn': [1, 2, 3]})
+    with pytest.raises(KeyError):
+        weather_data_plot(invalid_df)
+
 def test_weather_data_plot_creates_figure(sample_weather_df, monkeypatch):
     mock_figure = None
     def mock_figure_creation(*args, **kwargs):

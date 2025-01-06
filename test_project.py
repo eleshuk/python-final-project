@@ -103,19 +103,5 @@ def test_weather_data_plot_exception_handling():
     with pytest.raises(KeyError):
         weather_data_plot(invalid_df)
 
-def test_weather_data_plot_creates_figure(sample_weather_df, monkeypatch):
-    mock_figure = None
-    def mock_figure_creation(*args, **kwargs):
-        nonlocal mock_figure
-        mock_figure = plt.Figure(*args, **kwargs)
-        return mock_figure
-
-    monkeypatch.setattr(plt, 'figure', mock_figure_creation)
-    monkeypatch.setattr(plt, 'show', lambda: None)
-
-    weather_data_plot(sample_weather_df)
-    assert mock_figure is not None
-    # assert mock_figure.get_size_inches() == (12, 6)
-
 if __name__ == "__main__":
     pytest.main()

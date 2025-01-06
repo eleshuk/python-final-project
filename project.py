@@ -6,8 +6,6 @@ import requests_cache
 from retry_requests import retry
 import requests
 
-
-
 def main():
     farm_data = get_farm_input()
     print("Collected inputs:", farm_data)
@@ -123,7 +121,6 @@ class weatherData:
         return daily_dataframe
 
 '''
-STILL NEEDS TESTING ONCE DF IS READY
 input: a dataframe of weather across a date range, for a specific location
 output: plot of max temperature, min temperature and precipitation
 '''
@@ -141,7 +138,6 @@ def weather_data_plot(weather_df):
     plt.xticks(rotation=45)
     plt.show()
     return 'Plot successfully created'
-
 
 
 if __name__ == "__main__":

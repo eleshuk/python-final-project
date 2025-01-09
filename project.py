@@ -1,6 +1,7 @@
 from datetime import datetime, date
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
@@ -127,15 +128,22 @@ output: plot of max temperature, min temperature and precipitation
 
 def weather_data_plot(weather_df):
     # create the plot
-    plt.figure(figsize=(12, 6))
-    plt.plot(weather_df["Date"], weather_df["TemperatureMax"], label="TemperatureMax")
-    plt.plot(weather_df["Date"], weather_df["TemperatureMin"], label="TemperatureMin")
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(weather_df["Date"], weather_df["TemperatureMax"], label="TemperatureMax")
+    ax.plot(weather_df["Date"], weather_df["TemperatureMin"], label="TemperatureMin")
     # plt.plot(weather_df["Date"], weather_df["Precipitation"], label="Precipitation")
     
+    # Set the x-axis to display a limited number of dates
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=50))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    
+    # Rotate and align the tick labels so they look better
+    fig.autofmt_xdate()
+
     # customise and show the plot
     plt.xlabel("Date")
     plt.ylabel("Temperature (C)")
-    plt.xticks(rotation=45)
+    plt.tight_layout()
     plt.show()
     return 'Plot successfully created'
 

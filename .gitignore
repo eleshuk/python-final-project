@@ -1,0 +1,11 @@
+# Ignore compiled Python bytecode files
+*.pyc
+# Ignore Python cache directories
+__pycache__/
+.pytest_cache
+.cache.sqlite
+# Ignore environment-specific settings
+.env
+.venv
+# Ignore editor-specific files
+.vscode/

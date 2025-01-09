@@ -3,7 +3,8 @@ from project import weatherData, get_farm_input, weather_data_plot
 import responses
 import pandas as pd
 import matplotlib.pyplot as plt
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
+import requests
 
 def test_valid_inputs(monkeypatch):
     inputs = iter(["39.3999", "-8.2245", "2025-01-01", "2025-01-10"])
@@ -36,45 +37,142 @@ def test_invalid_dates(monkeypatch):
 
 
 # Test to ensure that API call didn't fail
-@responses.activate
-def test_pull_weather_data():
-    user_inputs = {
-            "latitude": 39.3999,
-            "longitude": -8.2245,
-            "start_date": "2025-01-01",
-            "end_date": "2025-01-04",
-        }
-    url = f"https://historical-forecast-api.open-meteo.com/v1/forecast"
-    # https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=39.3999&longitude=-8.2245&start_date=2025-01-01&end_date=2025-01-04&daily=temperature_2m_max,temperature_2m_min,precipitation_sum
+# @responses.activate
+# def test_pull_weather_data():
+#     user_inputs = {
+#             "latitude": 39.3999,
+#             "longitude": -8.2245,
+#             "start_date": "2025-01-01",
+#             "end_date": "2025-01-04",
+#         }
+#     url = (
+#         "https://historical-forecast-api.open-meteo.com/v1/forecast"
+#         f"?latitude={user_inputs['latitude']}&longitude={user_inputs['longitude']}"
+#         f"&start_date={user_inputs['start_date']}&end_date={user_inputs['end_date']}"
+#         "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum"
+#     )
+#     # https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=39.3999&longitude=-8.2245&start_date=2025-01-01&end_date=2025-01-04&daily=temperature_2m_max,temperature_2m_min,precipitation_sum
     
-    # Mock the API response (example Open-Meteo response structure)
+#     # Mock the API response (example Open-Meteo response structure)
+#     responses.add(
+#         responses.GET,
+#         url,
+#         json={
+#             "latitude": user_inputs["latitude"],
+#             "longitude": user_inputs["longitude"],
+#             "daily": {
+#                 "time": ["2025-01-01", "2025-01-02", "2025-01-03", "2025-01-04"],
+#                 "temperature_2m_max": [13.5, 14.8, 14.6, 15.6],
+#                 "temperature_2m_min": [4, 1.9, 3.4, 5.2],
+#                 "precipitation_sum": [0, 0, 0, 0],
+#             }
+#         },
+#         status=200
+#     )
+#     # Simulate making the request
+#     response = requests.get(url).json()
+
+#     # Access the latitude field from the mocked response
+#     latitude = response["latitude"]
+#     print(f"Latitude: {latitude}")
+
+#     # Call the function with user inputs
+#     cleaned_data = weatherData.get_weather_data(user_inputs)
+
+#     # Expected cleaned data after processing
+#     expected_data = [
+#         {"date": "2025-01-01", "TemperatureMax": 13.5, "TemperatureMin": 4, "Precipitation": 0},
+#         {"date": "2025-01-02", "TemperatureMax": 14.8, "TemperatureMin": 1.9, "Precipitation": 0},
+#         {"date": "2025-01-03", "TemperatureMax": 14.6, "TemperatureMin": 3.4, "Precipitation": 0},
+#         {"date": "2025-01-04", "TemperatureMax": 15.6, "TemperatureMin": 5.2, "Precipitation": 0}
+#     ]
+
+#     # Assert the cleaned data matches the expected output
+#     assert cleaned_data == expected_data, "Data cleaning failed for Open-Meteo API response"
+#     assert all("Date" in item and "TemperatureMax" in item and "TemperatureMin" and "Precipitation" in item in item for item in cleaned_data)
+
+    
+@pytest.fixture
+def user_inputs():
+    return {
+        "latitude": 39.3999,
+        "longitude": -8.2245,
+        "start_date": "2025-01-01",
+        "end_date": "2025-01-04",
+    }
+
+
+@pytest.fixture
+def mock_response():
+    return {
+        "latitude": 39.3999,
+        "longitude": -8.2245,
+        "daily": {
+            "time": ["2025-01-01", "2025-01-02", "2025-01-03", "2025-01-04"],  # ISO date strings
+            "temperature_2m_max": [13.5, 14.8, 14.6, 15.6],
+            "temperature_2m_min": [4.0, 1.9, 3.4, 5.2],
+            "precipitation_sum": [0.0, 0.0, 0.0, 0.0],
+        },
+    }
+
+
+@patch("openmeteo_requests.Client")
+def test_pull_weather_data(mock_client, user_inputs, mock_response):
+    # Mock the behavior of response.Daily() and related methods
+    mock_daily = MagicMock()
+
+    # Mock Time, TimeEnd, and Interval to match the test date range
+    mock_daily.Time.return_value = "2025-01-01"  # Start date
+    mock_daily.TimeEnd.return_value = "2025-01-04"  # End date
+    mock_daily.Interval.return_value = 86400  # 1 day in seconds
+
+    # Mock Variables and ValuesAsNumpy
+    mock_daily.Variables.side_effect = [
+        MagicMock(ValuesAsNumpy=lambda: mock_response["daily"]["temperature_2m_max"]),
+        MagicMock(ValuesAsNumpy=lambda: mock_response["daily"]["temperature_2m_min"]),
+        MagicMock(ValuesAsNumpy=lambda: mock_response["daily"]["precipitation_sum"]),
+    ]
+
+    # Mock weather_api response
+    mock_instance = mock_client.return_value
+    mock_instance.weather_api.return_value = [MagicMock(Daily=lambda: mock_daily)]
+
+    # Instantiate weatherData and call get_weather_data
+    weather = weatherData(user_inputs)
+    cleaned_data = weather.get_weather_data()
+
+    print(cleaned_data)
+
+    # Expected data
+    expected_data = [
+        {"Date": "2025-01-01", "TemperatureMax": 13.5, "TemperatureMin": 4.0, "Precipitation": 0.0},
+        {"Date": "2025-01-02", "TemperatureMax": 14.8, "TemperatureMin": 1.9, "Precipitation": 0.0},
+        {"Date": "2025-01-03", "TemperatureMax": 14.6, "TemperatureMin": 3.4, "Precipitation": 0.0},
+        {"Date": "2025-01-04", "TemperatureMax": 15.6, "TemperatureMin": 5.2, "Precipitation": 0.0},
+    ]
+    print(expected_data)
+
+    # Assert the output matches the expected data
+    assert cleaned_data == expected_data
+
+# Test API failure
+@responses.activate
+def test_pull_weather_data_api_failure(user_inputs):
+    url = (
+        "https://historical-forecast-api.open-meteo.com/v1/forecast"
+        f"?latitude={user_inputs['latitude']}&longitude={user_inputs['longitude']}"
+        f"&start_date={user_inputs['start_date']}&end_date={user_inputs['end_date']}"
+        "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum"
+    )
     responses.add(
         responses.GET,
         url,
-        json={
-            "latitude": user_inputs["latitude"],
-            "longitude": user_inputs["longitude"],
-            "start_date": user_inputs["start_date"],
-            "end_date": user_inputs["end_date"],
-            "daily": ["temperature_2m_max", "temperature_2m_min", "precipitation_sum"]
-        },
-        status=200
+        json={"error": "Invalid request"},
+        status=400
     )
 
-    # Call the function with user inputs
-    cleaned_data = weatherData.get_weather_data(user_inputs)
-
-    # Expected cleaned data after processing
-    expected_data = [
-        {"date": "2025-01-01", "TemperatureMax": 13.5, "TemperatureMin": 4, "Precipitation": 0},
-        {"date": "2025-01-02", "TemperatureMax": 14.8, "TemperatureMin": 1.9, "Precipitation": 0},
-        {"date": "2025-01-03", "TemperatureMax": 14.6, "TemperatureMin": 3.4, "Precipitation": 0},
-        {"date": "2025-01-04", "TemperatureMax": 15.6, "TemperatureMin": 5.2, "Precipitation": 0}
-    ]
-
-    # Assert the cleaned data matches the expected output
-    assert cleaned_data == expected_data, "Data cleaning failed for Open-Meteo API response"
-    assert all("Date" in item and "TemperatureMax" in item and "TemperatureMin" and "TemperatureMin" in item in item for item in cleaned_data)
+    response = requests.get(url)
+    assert response.status_code == 400, "Expected failure for invalid API request"
 
 
 # Tests to ensure temperature data plot is functioning as expected

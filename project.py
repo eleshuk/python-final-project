@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
-import requests
+
 
 def main():
     farm_data = get_farm_input()
@@ -99,8 +99,8 @@ class weatherData:
         # Create a DataFrame with the processed data
         daily_data = {
             "date": pd.date_range(
-                start=pd.to_datetime(daily.Time(), unit="s", utc=True),
-                end=pd.to_datetime(daily.TimeEnd(), unit="s", utc=True),
+                start=pd.to_datetime(daily.Time(), utc=True),  # No unit="s" needed for ISO strings
+                end=pd.to_datetime(daily.TimeEnd(), utc=True),
                 freq=pd.Timedelta(seconds=daily.Interval()),
                 inclusive="left"
             ),

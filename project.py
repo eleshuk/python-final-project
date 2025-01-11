@@ -98,27 +98,45 @@ class weatherData:
         daily_precipitation_sum = daily.Variables(2).ValuesAsNumpy()
         
         # Create a DataFrame with the processed data
-        daily_data = {
-            "date": pd.date_range(
-                start=pd.to_datetime(daily.Time(), utc=True),  # No unit="s" needed for ISO strings
-                end=pd.to_datetime(daily.TimeEnd(), utc=True),
-                freq=pd.Timedelta(seconds=daily.Interval()),
-                inclusive="left"
-            ),
-            "TemperatureMax": daily_temperature_2m_max,
-            "TemperatureMin": daily_temperature_2m_min,
-            "Precipitation": daily_precipitation_sum
-        }
+        # daily_data = {
+        #     "date": pd.date_range(
+        #         start=pd.to_datetime(daily.Time(), utc=True),  # No unit="s" needed for ISO strings
+        #         end=pd.to_datetime(daily.TimeEnd(), utc=True),
+        #         freq=pd.Timedelta(seconds=86400),
+        #         inclusive="left"
+        #     ),
+        #     "TemperatureMax": daily_temperature_2m_max,
+        #     "TemperatureMin": daily_temperature_2m_min,
+        #     "Precipitation": daily_precipitation_sum
+        # }
+        daily_data = {"date": pd.date_range(
+            start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
+            end = pd.to_datetime(daily.TimeEnd(), unit = "s", utc = True),
+            freq = pd.Timedelta(seconds = daily.Interval()),
+            inclusive = "left"
+        )}
+
+        daily_data["temperature_2m_max"] = daily_temperature_2m_max
+        daily_data["temperature_2m_min"] = daily_temperature_2m_min
+        daily_data["precipitation_sum"] = daily_precipitation_sum
+
         daily_dataframe = pd.DataFrame(data=daily_data)
 
-        # Format and clean the DataFrame
+        # # Format and clean the DataFrame
         daily_dataframe['Date'] = daily_dataframe['date'].dt.strftime('%Y-%m-%d')
         daily_dataframe = daily_dataframe.drop(columns=['date'])
+        daily_dataframe.columns = ['TemperatureMax', 'TemperatureMin', 'Precipitation', 'Date']
+        # Reorder columns
+        daily_dataframe = daily_dataframe[['Date','TemperatureMax', 'TemperatureMin', 'Precipitation']]
 
-        # Drop rows with all NA values in specific columns
+        # # Drop rows with all NA values in specific columns
         columns_to_check = ['TemperatureMax', 'TemperatureMin', 'Precipitation']
         daily_dataframe = daily_dataframe.dropna(subset=columns_to_check, how='all')
         
+        float32_columns = daily_dataframe.select_dtypes(include=['float32']).columns
+        daily_dataframe[float32_columns] = daily_dataframe[float32_columns].astype('float64').round(1)
+        daily_dataframe = daily_dataframe.reset_index(drop=True)
+
         return daily_dataframe
 
 '''

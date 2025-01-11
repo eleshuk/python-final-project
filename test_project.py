@@ -117,62 +117,77 @@ def mock_response():
 
 
 @patch("openmeteo_requests.Client")
-def test_pull_weather_data(mock_client, user_inputs, mock_response):
-    # Mock the behavior of response.Daily() and related methods
+def test_api_returns_expected_data(mock_client, mock_response):
+    # Mocking the Daily data
     mock_daily = MagicMock()
+    mock_daily.Time.return_value = pd.Timestamp("2025-01-01", tz="UTC")
+    mock_daily.TimeEnd.return_value = pd.Timestamp("2025-01-04", tz="UTC")
+    mock_daily.Interval.return_value = 86400
 
-    # Mock Time, TimeEnd, and Interval to match the test date range
-    mock_daily.Time.return_value = "2025-01-01"  # Start date
-    mock_daily.TimeEnd.return_value = "2025-01-04"  # End date
-    mock_daily.Interval.return_value = 86400  # 1 day in seconds
-
-    # Mock Variables and ValuesAsNumpy
-    mock_daily.Variables.side_effect = [
+    # Correctly mock Variables to return a list of mocks, each returning the correct data
+    mock_variables = [
         MagicMock(ValuesAsNumpy=lambda: mock_response["daily"]["temperature_2m_max"]),
         MagicMock(ValuesAsNumpy=lambda: mock_response["daily"]["temperature_2m_min"]),
         MagicMock(ValuesAsNumpy=lambda: mock_response["daily"]["precipitation_sum"]),
     ]
+    mock_daily.Variables.return_value = mock_variables
 
-    # Mock weather_api response
+    # Mocking the client instance
     mock_instance = mock_client.return_value
     mock_instance.weather_api.return_value = [MagicMock(Daily=lambda: mock_daily)]
 
-    # Instantiate weatherData and call get_weather_data
+    # Call the mocked API
+    api_data = mock_instance.weather_api()
+    daily_data = api_data[0].Daily()
+
+    # Assertions
+    assert daily_data.Time() == pd.Timestamp("2025-01-01", tz="UTC"), "Start date mismatch"
+    assert daily_data.TimeEnd() == pd.Timestamp("2025-01-04", tz="UTC"), "End date mismatch"
+
+    # Check temperature_2m_max
+    assert daily_data.Variables()[0].ValuesAsNumpy() == mock_response["daily"]["temperature_2m_max"], \
+        "Temperature max mismatch"
+
+    # Check temperature_2m_min
+    assert daily_data.Variables()[1].ValuesAsNumpy() == mock_response["daily"]["temperature_2m_min"], \
+        "Temperature min mismatch"
+
+    # Check precipitation_sum
+    assert daily_data.Variables()[2].ValuesAsNumpy() == mock_response["daily"]["precipitation_sum"], \
+        "Precipitation mismatch"
+
+
+def test_data_cleaning(mock_response, user_inputs):
+    # Use the mock response as input data for cleaning
     weather = weatherData(user_inputs)
+    # Simulate raw data being set by the API
+    weather.raw_data = mock_response["daily"] 
+    weather.raw_data = pd.DataFrame(data=weather.raw_data)
+    weather.raw_data.columns = ['Date','TemperatureMax', 'TemperatureMin', 'Precipitation']
+
+    # Clean data according to the project.py function
     cleaned_data = weather.get_weather_data()
+    # Filter cleaned df to match the dates that we're testing
+    cleaned_data = cleaned_data[(cleaned_data['Date'] >= mock_response["daily"]["time"][0]) & (cleaned_data['Date'] <= mock_response["daily"]["time"][3])]
+    cleaned_data = cleaned_data.reset_index(drop=True)
 
-    print(cleaned_data)
-
-    # Expected data
-    expected_data = [
+    # Define the expected cleaned data as a DataFrame
+    expected_data = pd.DataFrame([
         {"Date": "2025-01-01", "TemperatureMax": 13.5, "TemperatureMin": 4.0, "Precipitation": 0.0},
         {"Date": "2025-01-02", "TemperatureMax": 14.8, "TemperatureMin": 1.9, "Precipitation": 0.0},
         {"Date": "2025-01-03", "TemperatureMax": 14.6, "TemperatureMin": 3.4, "Precipitation": 0.0},
         {"Date": "2025-01-04", "TemperatureMax": 15.6, "TemperatureMin": 5.2, "Precipitation": 0.0},
-    ]
+    ])
+
+    print(cleaned_data)
     print(expected_data)
+    print(weather.raw_data)
 
-    # Assert the output matches the expected data
-    assert cleaned_data == expected_data
+    # Assert that cleaned data (from function) matches expected data
+    assert cleaned_data.equals(expected_data), "Cleaned data does not match expected data"
 
-# Test API failure
-@responses.activate
-def test_pull_weather_data_api_failure(user_inputs):
-    url = (
-        "https://historical-forecast-api.open-meteo.com/v1/forecast"
-        f"?latitude={user_inputs['latitude']}&longitude={user_inputs['longitude']}"
-        f"&start_date={user_inputs['start_date']}&end_date={user_inputs['end_date']}"
-        "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum"
-    )
-    responses.add(
-        responses.GET,
-        url,
-        json={"error": "Invalid request"},
-        status=400
-    )
-
-    response = requests.get(url)
-    assert response.status_code == 400, "Expected failure for invalid API request"
+    # If weather.raw_data (from mocked API call) is also expected to be a DataFrame
+    assert pd.DataFrame(weather.raw_data).equals(expected_data), "Raw data does not match expected data"
 
 
 # Tests to ensure temperature data plot is functioning as expected

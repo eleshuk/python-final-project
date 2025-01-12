@@ -117,7 +117,7 @@ def test_empty_input_handling(mock_input, mock_geocoder, default_values):
     assert result['start_date'] == default_values["start_date"]
     assert result['end_date'] == default_values["end_date"]
     
-    
+# User inputs to test API call
 @pytest.fixture
 def user_inputs():
     return {
@@ -127,7 +127,7 @@ def user_inputs():
         "end_date": "2025-01-04",
     }
 
-
+# Mock response from API call
 @pytest.fixture
 def mock_response():
     return {
@@ -141,7 +141,7 @@ def mock_response():
         },
     }
 
-
+# Mock and test API call
 @patch("openmeteo_requests.Client")
 def test_api_returns_expected_data(mock_client, mock_response):
     # Mocking the Daily data
@@ -182,7 +182,7 @@ def test_api_returns_expected_data(mock_client, mock_response):
     assert daily_data.Variables()[2].ValuesAsNumpy() == mock_response["daily"]["precipitation_sum"], \
         "Precipitation mismatch"
 
-
+# Test data cleaning function
 def test_data_cleaning(mock_response, user_inputs):
     # Use the mock response as input data for cleaning
     weather = weatherData(user_inputs)
@@ -214,6 +214,47 @@ def test_data_cleaning(mock_response, user_inputs):
 
     # If weather.raw_data (from mocked API call) is also expected to be a DataFrame
     assert pd.DataFrame(weather.raw_data).equals(expected_data), "Raw data does not match expected data"
+
+
+# Test to check whether the export function is working properly
+import pytest
+from unittest.mock import patch, MagicMock
+
+# Test for when export=True
+@patch("path.to.your.module.pd.DataFrame.to_csv")  # Mock pandas DataFrame to_csv
+@patch("path.to.your.module.YourClass.get_weather_data")  # Mock get_weather_data method
+def test_export_weather_data_with_export_true(mock_get_weather_data, mock_to_csv):
+    # Setup
+    mock_df = MagicMock()  # Mock DataFrame
+    mock_get_weather_data.return_value = mock_df  # Simulate get_weather_data returning a DataFrame
+
+    # Instantiate your class
+    obj = YourClass()
+
+    # Call the function with export=True
+    obj.export_weather_data(export=True)
+
+    # Assertions
+    mock_get_weather_data.assert_called_once()  # Check if get_weather_data was called
+    mock_to_csv.assert_called_once_with(
+        "/Users/eleshuk/Library/CloudStorage/GoogleDrive-eleshuk@gmail.com/.shortcut-targets-by-id/1XNkQR60z1T7WELqvqkvZchRrVWQpCzvs/data_science_project/03_python/data/weather_data.csv",
+        index=False
+    )
+
+# Test for when export=False
+@patch("path.to.your.module.pd.DataFrame.to_csv")  # Mock pandas DataFrame to_csv
+@patch("path.to.your.module.YourClass.get_weather_data")  # Mock get_weather_data method
+def test_export_weather_data_with_export_false(mock_get_weather_data, mock_to_csv):
+    # Instantiate your class
+    obj = weatherData()
+
+    # Call the function with export=False
+    obj.export_weather_data(export=False)
+
+    # Assertions
+    mock_get_weather_data.assert_not_called()  # Check get_weather_data is NOT called
+    mock_to_csv.assert_not_called()  # Check to_csv is NOT called
+
 
 
 # Tests to ensure temperature data plot is functioning as expected

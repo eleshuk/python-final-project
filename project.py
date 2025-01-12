@@ -13,6 +13,7 @@ def main():
     print("Collected inputs:", farm_data)
     weather = weatherData(farm_data) 
     daily_weather_df = weather.get_weather_data()
+    weather.export_weather_data(export=True)
     weather_data_plot(weather_df=daily_weather_df)
 
 def get_farm_input():
@@ -70,7 +71,8 @@ class weatherData:
         # Initialize instance attributes
         self.latitude = inputs['latitude']
         self.longitude = inputs['longitude']
-        self.start_date = '2023-06-01'
+        # self.start_date = '2023-06-01'
+        self.start_date = inputs['start_date']
         self.end_date = date.today()
         
         # Set up the Open-Meteo API client with caching and retries
@@ -99,18 +101,7 @@ class weatherData:
         daily_temperature_2m_min = daily.Variables(1).ValuesAsNumpy()
         daily_precipitation_sum = daily.Variables(2).ValuesAsNumpy()
         
-        # Create a DataFrame with the processed data
-        # daily_data = {
-        #     "date": pd.date_range(
-        #         start=pd.to_datetime(daily.Time(), utc=True),  # No unit="s" needed for ISO strings
-        #         end=pd.to_datetime(daily.TimeEnd(), utc=True),
-        #         freq=pd.Timedelta(seconds=86400),
-        #         inclusive="left"
-        #     ),
-        #     "TemperatureMax": daily_temperature_2m_max,
-        #     "TemperatureMin": daily_temperature_2m_min,
-        #     "Precipitation": daily_precipitation_sum
-        # }
+ 
         daily_data = {"date": pd.date_range(
             start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
             end = pd.to_datetime(daily.TimeEnd(), unit = "s", utc = True),
@@ -140,6 +131,18 @@ class weatherData:
         daily_dataframe = daily_dataframe.reset_index(drop=True)
 
         return daily_dataframe
+    
+    # Option to output weather data as a .csv
+    def export_weather_data(self, export=False):
+        if export:
+            weather_data = self.get_weather_data()
+            # Output to CSV
+            output_path = "/Users/eleshuk/Library/CloudStorage/GoogleDrive-eleshuk@gmail.com/.shortcut-targets-by-id/1XNkQR60z1T7WELqvqkvZchRrVWQpCzvs/data_science_project/03_python/data/weather_data.csv"
+            print(output_path)
+            weather_data.to_csv(output_path, index=False)
+        else:
+            pass
+
 
 '''
 input: a dataframe of weather across a date range, for a specific location

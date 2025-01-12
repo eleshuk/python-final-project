@@ -50,4 +50,13 @@ def get_growing_seasons(weather_data):
     plt.show()
 
 
-get_growing_seasons(weather_data)
+# get_growing_seasons(weather_data)
+
+
+# Option to output weather data as a .csv
+def export_weather_data():
+    weather_data = weather.get_weather_data()
+    # Output to CSV
+    output_path = "/Users/eleshuk/Library/CloudStorage/GoogleDrive-eleshuk@gmail.com/.shortcut-targets-by-id/1XNkQR60z1T7WELqvqkvZchRrVWQpCzvs/data_science_project/03_python/data/weather_data.csv"
+    print(output_path)
+    weather_data.to_csv(output_path, index=False)

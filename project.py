@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import openmeteo_requests
 import requests_cache
+import requests
 from retry_requests import retry
 import geocoder 
 
@@ -15,6 +16,7 @@ def main():
     daily_weather_df = weather.get_weather_data()
     weather.export_weather_data(export=True)
     weather_data_plot(weather_df=daily_weather_df)
+
 
 def get_farm_input():
     """
@@ -146,15 +148,13 @@ class weatherData:
 
 '''
 input: a dataframe of weather across a date range, for a specific location
-output: plot of max temperature, min temperature and precipitation
+output: plot of max temperature, and min temperature
 '''
-
 def weather_data_plot(weather_df):
     # create the plot
     fig, ax = plt.subplots(figsize=(12, 6))
     ax.plot(weather_df["Date"], weather_df["TemperatureMax"], label="TemperatureMax")
     ax.plot(weather_df["Date"], weather_df["TemperatureMin"], label="TemperatureMin")
-    # plt.plot(weather_df["Date"], weather_df["Precipitation"], label="Precipitation")
     
     # Set the x-axis to display a limited number of dates
     ax.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=50))
@@ -169,7 +169,6 @@ def weather_data_plot(weather_df):
     plt.tight_layout()
     plt.show()
     return 'Plot successfully created'
-
 
 if __name__ == "__main__":
     main()

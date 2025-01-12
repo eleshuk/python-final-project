@@ -284,4 +284,4 @@ def test_weather_data_plot_exception_handling():
         weather_data_plot(invalid_df)
 
 if __name__ == "__main__":
-    pytest.main()
+    pytest.main([__file__])

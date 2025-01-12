@@ -5,6 +5,7 @@ import matplotlib.dates as mdates
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
+import geocoder 
 
 
 def main():
@@ -16,45 +17,46 @@ def main():
 
 def get_farm_input():
     """
-    Collect and validate latitude, longitude, start date, and end date from the user.
+    Collect and validate GPS coordinates from the user's IP, start date, and end date.
     Returns a dictionary with the validated inputs.
     """
-    while True:
-        try:
-            lat = float(input("Enter latitude (between -90 and 90): "))
-            if not -90 <= lat <= 90:
-                raise ValueError("Latitude must be between -90 and 90.")
-            break
-        except ValueError as e:
-            print(f"Invalid input: {e}")
+    # Step 1: Retrieve GPS coordinates using geocoder
+    print("Fetching GPS coordinates from your IP address...")
+    g = geocoder.ip('me')
+    if g.ok:
+        # Extract latitude and longitude if the geocoder is successful
+        lat, long = g.latlng
+        print(f"Detected latitude: {lat}, longitude: {long}")
+    else:
+        # Raise an exception if geocoder fails to retrieve coordinates
+        raise Exception("Unable to retrieve GPS coordinates from IP address.")
 
-    while True:
-        try:
-            long = float(input("Enter longitude (between -180 and 180): "))
-            if not -180 <= long <= 180:
-                raise ValueError("Longitude must be between -180 and 180.")
-            break
-        except ValueError as e:
-            print(f"Invalid input: {e}")
-
+    # Step 2: Prompt user for the start date and validate input
     while True:
         try:
             start_date = input("Enter start date (YYYY-MM-DD): ")
+            # Validate the date format
             datetime.strptime(start_date, "%Y-%m-%d")
             break
         except ValueError:
+            # Inform the user about the invalid format and prompt again
             print("Invalid date format. Please use YYYY-MM-DD.")
 
+    # Step 3: Prompt user for the end date and validate input
     while True:
         try:
             end_date = input("Enter end date (YYYY-MM-DD): ")
+            # Validate the date format
             datetime.strptime(end_date, "%Y-%m-%d")
+            # Check if the end date is not earlier than the start date
             if end_date < start_date:
                 raise ValueError("End date must not be earlier than start date.")
             break
         except ValueError as e:
+            # Inform the user about the invalid input and prompt again
             print(f"Invalid input: {e}")
 
+    # Step 4: Return the collected and validated inputs
     return {
         "latitude": lat,
         "longitude": long,

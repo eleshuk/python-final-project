@@ -18,6 +18,9 @@ def main():
     weather = weatherData(farm_data) 
     daily_weather_df = weather.get_weather_data()
     weather.export_weather_data(export=True)
+    location = locationData(farm_data)
+    freguesia = location.get_freguesia()
+    print(f"It looks like you're located in the freguesia of {freguesia}. Enjoy this weather plot of your area!")
     weather_data_plot(weather_df=daily_weather_df)
 
 def get_farm_input():

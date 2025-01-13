@@ -7,6 +7,9 @@ import requests_cache
 import requests
 from retry_requests import retry
 import geocoder 
+import tkinter as tk
+from tkinter import filedialog
+from pathlib import Path
 
 
 def main():
@@ -14,7 +17,7 @@ def main():
     print("Collected inputs:", farm_data)
     weather = weatherData(farm_data) 
     daily_weather_df = weather.get_weather_data()
-    weather.export_weather_data(export=True)
+    weather.export_weather_data(export=False)
     weather_data_plot(weather_df=daily_weather_df)
 
 
@@ -139,9 +142,25 @@ class weatherData:
         if export:
             weather_data = self.get_weather_data()
             # Output to CSV
-            output_path = "/Users/eleshuk/Library/CloudStorage/GoogleDrive-eleshuk@gmail.com/.shortcut-targets-by-id/1XNkQR60z1T7WELqvqkvZchRrVWQpCzvs/data_science_project/03_python/data/weather_data.csv"
-            print(output_path)
-            weather_data.to_csv(output_path, index=False)
+            
+            # Hide the root tkinter window
+            root = tk.Tk()
+            root.withdraw()
+            # Ask the user to select a directory
+            output_path = filedialog.askdirectory(title="Select Output Directory")
+            
+            if output_path:
+                output_dir = Path(output_path)
+                print(f"Output path set to: {output_dir}")
+
+                # Define the full file path (directory + file name)
+                output_file = output_dir / "weather_data.csv"
+
+                # Save the data to the specified file
+                weather_data.to_csv(output_file, index=False)
+                print(f"File saved to: {output_file}")
+            else:
+                print("No directory selected.")
         else:
             pass
 

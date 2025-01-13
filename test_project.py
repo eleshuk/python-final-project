@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import unittest
 from unittest.mock import patch, MagicMock
 import requests
+from pathlib import Path
+import sys
+
 
 @pytest.fixture
 def default_values():
@@ -187,7 +190,7 @@ def test_data_cleaning(mock_response, user_inputs):
     # Use the mock response as input data for cleaning
     weather = weatherData(user_inputs)
     # Simulate raw data being set by the API
-    weather.raw_data = mock_response["daily"] 
+    weather.raw_data = mock_response["daily"]
     weather.raw_data = pd.DataFrame(data=weather.raw_data)
     weather.raw_data.columns = ['Date','TemperatureMax', 'TemperatureMin', 'Precipitation']
 
@@ -217,36 +220,91 @@ def test_data_cleaning(mock_response, user_inputs):
 
 
 # Test to check whether the export function is working properly
-import pytest
-from unittest.mock import patch, MagicMock
+# Add the folder to sys.path
+sys.path.append(str(Path(__file__).parent.parent / "python-final-project"))
 
-# Test for when export=True
-@patch("path.to.your.module.pd.DataFrame.to_csv")  # Mock pandas DataFrame to_csv
-@patch("path.to.your.module.YourClass.get_weather_data")  # Mock get_weather_data method
-def test_export_weather_data_with_export_true(mock_get_weather_data, mock_to_csv):
-    # Setup
-    mock_df = MagicMock()  # Mock DataFrame
-    mock_get_weather_data.return_value = mock_df  # Simulate get_weather_data returning a DataFrame
+# @patch("tkinter.filedialog.askdirectory")
+# @patch("project.weatherData.get_weather_data")  # Adjust module path
+# def test_export_weather_data_with_export_true(mock_get_weather_data, mock_askdirectory, user_inputs):
+#     # Mock askdirectory to return a specific directory
+#     mock_askdirectory.return_value = "/test/output/directory/"
 
-    # Instantiate your class
-    obj = YourClass()
+#     # Mock DataFrame
+#     mock_df = MagicMock(spec=pd.DataFrame)
+#     mock_df.to_csv = MagicMock()
 
-    # Call the function with export=True
+#     # Mock get_weather_data to return the mocked DataFrame
+#     mock_get_weather_data.return_value = mock_df
+
+#     # Instantiate the weatherData class
+#     obj = weatherData(user_inputs)
+
+#     # Call the method
+#     obj.export_weather_data(export=True)
+
+#     # Debugging output
+#     print(f"askdirectory called: {mock_askdirectory.call_count}")
+#     print(f"get_weather_data called: {mock_get_weather_data.call_count}")
+#     print(f"to_csv calls: {mock_df.to_csv.call_args_list}")
+
+#     # Expected path
+#     expected_path = str(Path("/test/output/directory/").resolve() / "weather_data.csv")
+#     print(f"Expected path: {expected_path}")
+
+#     # Assertions
+#     mock_askdirectory.assert_called_once()
+#     mock_get_weather_data.assert_called_once()
+#     mock_df.to_csv.assert_called_once_with(expected_path, index=False)
+# Test to check whether the export function is working properly
+@patch("tkinter.filedialog.askdirectory")
+@patch("project.weatherData.get_weather_data")  # Adjust module path
+def test_export_weather_data_with_export_true(mock_get_weather_data, mock_askdirectory, user_inputs):
+    # Mock askdirectory to return a specific directory
+    mock_askdirectory.return_value = "/test/output/directory/"
+
+    # Mock DataFrame
+    mock_df = MagicMock(spec=pd.DataFrame)
+    mock_df.to_csv = MagicMock()
+
+    # Mock get_weather_data to return the mocked DataFrame
+    mock_get_weather_data.return_value = mock_df
+
+    # Instantiate the weatherData class
+    obj = weatherData(user_inputs)
+
+    # Call the method
     obj.export_weather_data(export=True)
 
-    # Assertions
-    mock_get_weather_data.assert_called_once()  # Check if get_weather_data was called
-    mock_to_csv.assert_called_once_with(
-        "/Users/eleshuk/Library/CloudStorage/GoogleDrive-eleshuk@gmail.com/.shortcut-targets-by-id/1XNkQR60z1T7WELqvqkvZchRrVWQpCzvs/data_science_project/03_python/data/weather_data.csv",
-        index=False
-    )
+    # Debugging output
+    print(f"askdirectory called: {mock_askdirectory.call_count}")
+    print(f"get_weather_data called: {mock_get_weather_data.call_count}")
+    print(f"to_csv calls: {mock_df.to_csv.call_args_list}")
+
+    # Fix: Normalize the paths for comparison
+    expected_path = str(Path("/test/output/directory/").resolve() / "weather_data.csv")
+    actual_path = mock_df.to_csv.call_args[0][0]  # The first positional argument to to_csv
+
+    print(f"Expected path: {expected_path}")
+    print(f"Actual path: {actual_path}")
+
+    # Ensure all mocks were called correctly
+    mock_askdirectory.assert_called_once()
+    mock_get_weather_data.assert_called_once()
+
+    # Fix: Normalize both paths and compare
+    assert Path(actual_path).resolve() == Path(expected_path).resolve(), \
+        f"Path mismatch: {Path(actual_path).resolve()} != {Path(expected_path).resolve()}"
+
+    # Check the 'index' argument
+    assert 'index' in mock_df.to_csv.call_args[1], "Missing 'index' keyword argument in to_csv call"
+    assert mock_df.to_csv.call_args[1]['index'] == False, f"Index value mismatch: {mock_df.to_csv.call_args[1]['index']} != False"
 
 # Test for when export=False
-@patch("path.to.your.module.pd.DataFrame.to_csv")  # Mock pandas DataFrame to_csv
-@patch("path.to.your.module.YourClass.get_weather_data")  # Mock get_weather_data method
-def test_export_weather_data_with_export_false(mock_get_weather_data, mock_to_csv):
+@patch("project.pd.DataFrame.to_csv")  # Mock pandas DataFrame to_csv
+@patch("project.weatherData.get_weather_data")  # Mock get_weather_data method
+def test_export_weather_data_with_export_false(mock_get_weather_data, mock_to_csv, user_inputs):
     # Instantiate your class
-    obj = weatherData()
+    obj = weatherData(user_inputs)
 
     # Call the function with export=False
     obj.export_weather_data(export=False)

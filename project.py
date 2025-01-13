@@ -17,7 +17,6 @@ def main():
     weather.export_weather_data(export=True)
     weather_data_plot(weather_df=daily_weather_df)
 
-
 def get_farm_input():
     """
     Collect and validate GPS coordinates from the user's IP, start date, and end date.
@@ -157,8 +156,7 @@ def weather_data_plot(weather_df):
     ax.plot(weather_df["Date"], weather_df["TemperatureMin"], label="TemperatureMin")
     
     # Set the x-axis to display a limited number of dates
-    ax.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=50))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=20))
     
     # Rotate and align the tick labels so they look better
     fig.autofmt_xdate()

@@ -7,19 +7,15 @@ import requests_cache
 import requests
 from retry_requests import retry
 import geocoder 
-import tkinter as tk
-from tkinter import filedialog
-from pathlib import Path
+from location_data.location_data import locationData
 
 
 def main():
     farm_data = get_farm_input()
-    print("Collected inputs:", farm_data)
     weather = weatherData(farm_data) 
     daily_weather_df = weather.get_weather_data()
-    weather.export_weather_data(export=False)
+    weather.export_weather_data(export=True)
     weather_data_plot(weather_df=daily_weather_df)
-
 
 def get_farm_input():
     """
@@ -176,8 +172,7 @@ def weather_data_plot(weather_df):
     ax.plot(weather_df["Date"], weather_df["TemperatureMin"], label="TemperatureMin")
     
     # Set the x-axis to display a limited number of dates
-    ax.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=50))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=20))
     
     # Rotate and align the tick labels so they look better
     fig.autofmt_xdate()

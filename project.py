@@ -11,17 +11,21 @@ from location_data.location_data import locationData
 import tkinter as tk
 from tkinter import filedialog
 from pathlib import Path
+from weather_analysis.precipitation_analysis import precipitation_data_avg
 
 
 def main():
     farm_data = get_farm_input()
     weather = weatherData(farm_data) 
     daily_weather_df = weather.get_weather_data()
-    weather.export_weather_data(export=True)
+    weather.export_weather_data(export=False)
+    # Precipitation data
+    precipitation_data_avg(daily_weather_df)
     location = locationData(farm_data)
     freguesia = location.get_freguesia()
     print(f"It looks like you're located in the freguesia of {freguesia}. Enjoy this weather plot of your area!")
     weather_data_plot(weather_df=daily_weather_df)
+
 
 def get_farm_input():
     """

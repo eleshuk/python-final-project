@@ -144,6 +144,8 @@ class weatherData:
         if export:
             weather_data = self.get_weather_data()
             # Output to CSV
+
+            print("Please select a destination for your .csv download")
             
             # Hide the root tkinter window
             root = tk.Tk()

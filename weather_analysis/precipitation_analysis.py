@@ -1,3 +1,5 @@
+import pandas as pd
+
 # Analyze precipitation data
 def precipitation_data_avg(data):
     # Convert the 'date' column to datetime

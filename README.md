@@ -28,7 +28,7 @@ temp_analysis.py contains four functions, one that calculates the descriptive st
 ### Improvements and Future Work
 This code does not currently output the processed data, only the data summaries. Therefore for future work, the team could build in additional features to export all data in a folder, for example. This would give users more freedom to analyze their data according to their needs. Additional future work would include the ability to output a PDF report with all of the results presented neatly.  
 
-*Potential Issues*  
+### *Potential Issues*  
 One user had some trouble with running tkinter in a virtual environment, which prevents the GUI for selecting a destination for the data export from **export_weather_data()** from popping up. If this issue persists for the user, then this argument should be set to *False* and the user has set their intended filepath within the code. 
 
 ## test_project.py

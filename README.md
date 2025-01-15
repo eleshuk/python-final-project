@@ -28,7 +28,12 @@ One user had some trouble with running tkinter in a virtual environment, which p
 ## test_project.py
 Contains all of the test cases for project.py, which were tested with pytest.
 
-test_api_returns_expected_data() tests that the API is being called properly by mocking the API call and producing a set of mock weather data. The results from the mocked weather API are then compared to the data output by the real API with the same date range and the API checks that the data is aligned.
+### Tests
+#### Test user inputs
+**default_values()**, **test_valid_input()**, and **test_invalid_date_format** test that the user inputs are being acquired and handled correctly.  
+
+#### Test That API Returns Expected Data
+**test_api_returns_expected_data()** tests that the API is being called properly by mocking the API call and producing a set of mock weather data. The results from the mocked weather API are then compared to the data output by the real API with the same date range and the API checks that the data is aligned.
 
 
 ## precipitaton_analysis.py

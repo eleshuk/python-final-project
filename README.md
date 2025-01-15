@@ -15,9 +15,21 @@ Several methods print information, including the municipality, temperature analy
 ## test_project.py
 Contains all of the test cases for project.py, which were tested with pytest.
 
+test_api_returns_expected_data() tests that the API is being called properly by mocking the API call and producing a set of mock weather data. The results from the mocked weather API are then compared to the data output by the real API with the same date range and the API checks that the data is aligned.  
+
 ## precipitaton_analysis.py
 Contains two methods, one which adds a Rolling Average field to the dataframe and removes temperature fields, and the other which uses this dataframe to calculate maximum and minimum precipitations and the day with most rain and with least rain. 
+The window for the rolling averages is determined by the length of the date range selected by the user. So, if the range is less than or equal to 14 days, then a window of 3 days is applied to the calculation. 
+Initially when this code was written, the min_periods was not set, which resulted in NA values being produced in the dataset, however setting the min_periods to 1 fixed this issue. This same methodology is applied to date ranges between 14 and 30 days, and greater than 30 days. 
 
 
 ## temperature_analysis.py
+
+## test_temperature.py
+Contains tests applied to the temperature analysis code.  
+
+## test_precipitation.py
+Contains tests applied to the precipitation analysis code. 
+
+The two tests 
 

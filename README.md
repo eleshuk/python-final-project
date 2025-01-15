@@ -10,7 +10,8 @@ project.py contains the **main()** function, a function to get the user's inform
 The file contains a class and methods to get historical weather data from the Open-Meteo API, and gives the user the option to output this weather data as a CSV. The option to export the data as a CSV is presented as an argument in the **export_weather_data()** function, called within the main function. If the argument to export is *True*, then the user will be prompted to select a destination for their CSV file via a GUI which runs with tkinter. 
 
 **Precipitation Data**  
-The precipitation data is handled by two functions, **precipitation_data_avg()** which adds a Rolling Average field to the dataframe and removes temperature fields, and **precipitation_quick_stats()** which uses this dataframe to calculate maximum and minimum precipitation as well as the day within the date range with most rain and with least rain.   
+The precipitation data is handled by two functions, **precipitation_data_avg()** which adds a Rolling Average field to the dataframe and removes temperature fields, and **precipitation_quick_stats()** which uses this dataframe to calculate maximum and minimum precipitation as well as the day within the date range with most rain and with least rain.  
+
 The window for the rolling averages is determined by the length of the date range selected by the user. So, if the range is less than or equal to 14 days, then a window of 3 days is applied to the calculation. Initially when this code was written, the "min_periods" (which just does the rolling average calculation with less datapoints) was not set, which resulted in NA values being produced in the dataset, however setting the min_periods to 1 fixed this issue. This same methodology is applied to date ranges between 14 and 30 days, and greater than 30 days. 
 
 

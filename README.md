@@ -10,7 +10,8 @@ Contains two methods, one which adds a Rolling Average field to the dataframe an
 The window for the rolling averages is determined by the length of the date range selected by the user. So, if the range is less than or equal to 14 days, then a window of 3 days is applied to the calculation. 
 Initially when this code was written, the min_periods was not set, which resulted in NA values being produced in the dataset, however setting the min_periods to 1 fixed this issue. This same methodology is applied to date ranges between 14 and 30 days, and greater than 30 days. 
 
-*Issues* \n
+*Issues*
+
 One user had some trouble with running tkinter in a virtual environment, so if this issue persists for the user, then this argument should be set to False and the user has set their intended filepath within the code. 
 
 The main function calls functions in project.py as well as several precipitation and temperature analysis functions in their respective files. These were put in their own files to reduce the size of project.py, and increase the ease of readability of each file. 

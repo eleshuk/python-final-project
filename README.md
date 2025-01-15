@@ -22,11 +22,8 @@ Contains two methods, one which adds a Rolling Average field to the dataframe an
 The window for the rolling averages is determined by the length of the date range selected by the user. So, if the range is less than or equal to 14 days, then a window of 3 days is applied to the calculation. 
 Initially when this code was written, the min_periods was not set, which resulted in NA values being produced in the dataset, however setting the min_periods to 1 fixed this issue. This same methodology is applied to date ranges between 14 and 30 days, and greater than 30 days. 
 
-
-## temperature_analysis.py
-
-## test_temperature.py
-Contains tests applied to the temperature analysis code.  
+## temp_analysis.py
+Contains four functions, one that calculates the descriptive statistics, one that calculates the range in daily temperature, one that calculates extreme hot and cold temperatures, and lastly one that is used to call the other three functions. 
 
 ## test_precipitation.py
 Contains tests applied to the precipitation analysis code. 

@@ -22,7 +22,8 @@ The precipitation data is handled by two functions, **precipitation_data_avg()**
 The window for the rolling averages is determined by the length of the date range selected by the user. So, if the range is less than or equal to 14 days, then a window of 3 days is applied to the calculation. This same methodology is applied to date ranges between 14 and 30 days, and greater than 30 days, but with different window sizes. Initially when this code was written, the "min_periods" (which just does the rolling average calculation with less datapoints) was not set, which resulted in NA values being produced in the dataset, however setting the min_periods to 1 fixed this issue.
 
 ### Temperature Data 
-temp_analysis.py contains four functions, one that calculates the descriptive statistics, one that calculates the range in daily temperature, one that calculates extreme hot and cold temperatures, and lastly one that is used to call the other three functions. As mentioned above, these functions were split out of the project.py file to improve the readability and functionality of the code.  
+temp_analysis.py, within the temp_analysis folder, contains four functions, one that calculates the descriptive statistics, one that calculates the range in daily temperature, one that calculates extreme hot and cold temperatures, and lastly one that is used to call the other three functions. As mentioned above, these functions were split out of the project.py file to improve the readability and functionality of the code.  
+A future goal with the temperature data is to be able to output nice plots for easy visualizations of trends within the temperature data. Code for this was written, but was not optimized and was therefore was omitted from the final project. The file with code to plot data can be found in the "archived" folder.  
 
 
 ### Improvements and Future Work

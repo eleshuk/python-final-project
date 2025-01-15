@@ -12,19 +12,52 @@ import tkinter as tk
 from tkinter import filedialog
 from pathlib import Path
 from weather_analysis.precipitation_analysis import precipitation_data_avg
+from temp_analysis.temp_analysis import run_full_analysis
+from plot_toggling.plot import run_weather_plot_viewer
 
 
 def main():
-    farm_data = get_farm_input()
-    weather = weatherData(farm_data) 
-    daily_weather_df = weather.get_weather_data()
-    weather.export_weather_data(export=False)
+    farm_data = get_farm_input()  # Collect user input
+    weather = weatherData(farm_data)  # Fetch weather data
+    daily_weather_df = weather.get_weather_data()  # Get DataFrame of weather data
+
+    if daily_weather_df is None or daily_weather_df.empty:
+        print("No weather data was retrieved. Please check your inputs or API connectivity.")
+        return
+
+    weather.export_weather_data(export=False)  # Optionally export the data
+
+    # Adicionar interface gráfica para exibir os gráficos
+    print("\n### Launching Weather Plot Viewer ###")
+    try:
+        run_weather_plot_viewer(daily_weather_df)
+    except Exception as e:
+        print(f"Failed to launch weather plot viewer: {e}")
+
+# Analyze temperature data
+    run_full_analysis(daily_weather_df)
+
     # Precipitation data
     precipitation_data_avg(daily_weather_df)
-    location = locationData(farm_data)
-    freguesia = location.get_freguesia()
-    print(f"It looks like you're located in the freguesia of {freguesia}. Enjoy this weather plot of your area!")
-    weather_data_plot(weather_df=daily_weather_df)
+
+    # Location
+    print("\n### Location Information ###")
+    try:
+        location = locationData(farm_data)
+        freguesia = location.get_freguesia()
+        if freguesia:
+            print(f"It looks like you're located in the freguesia of {freguesia}. Enjoy this weather plot of your area!")
+        else:
+            print("Could not determine the freguesia for your location.")
+    except Exception as e:
+        print(f"Failed to retrieve location data: {e}")
+
+    # Additional weather plot
+    print("\n### Generating Additional Weather Plot ###")
+    try:
+        weather_data_plot(weather_df=daily_weather_df)
+    except Exception as e:
+        print(f"Failed to generate additional weather plot: {e}")
 
 
 def get_farm_input():

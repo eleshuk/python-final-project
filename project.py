@@ -11,9 +11,10 @@ from location_data.location_data import locationData
 import tkinter as tk
 from tkinter import filedialog
 from pathlib import Path
-from weather_analysis.precipitation_analysis import precipitation_data_avg
+from weather_analysis.precipitation_analysis import precipitation_data_avg, precipitation_quick_stats
 from temp_analysis.temp_analysis import run_full_analysis
 from plot_toggling.plot import run_weather_plot_viewer
+
 
 
 def main():
@@ -32,6 +33,12 @@ def main():
 
     # Precipitation data
     precipitation_data_avg(daily_weather_df)
+    precip_data = precipitation_data_avg(daily_weather_df)
+    precipitation_quick_stats(precip_data)
+    location = locationData(farm_data)
+    freguesia = location.get_freguesia()
+    print(f"It looks like you're located in the freguesia of {freguesia}. Enjoy this weather plot of your area!")
+    weather_data_plot(weather_df=daily_weather_df)
 
     # Location
     print("\n### Location Information ###")
@@ -81,25 +88,25 @@ def get_farm_input():
             print("Invalid date format. Please use YYYY-MM-DD.")
 
     # Step 3: Prompt user for the end date and validate input
-    while True:
-        try:
-            end_date = input("Enter end date (YYYY-MM-DD): ")
-            # Validate the date format
-            datetime.strptime(end_date, "%Y-%m-%d")
-            # Check if the end date is not earlier than the start date
-            if end_date < start_date:
-                raise ValueError("End date must not be earlier than start date.")
-            break
-        except ValueError as e:
-            # Inform the user about the invalid input and prompt again
-            print(f"Invalid input: {e}")
+    # while True:
+    #     try:
+    #         end_date = input("Enter end date (YYYY-MM-DD): ")
+    #         # Validate the date format
+    #         datetime.strptime(end_date, "%Y-%m-%d")
+    #         # Check if the end date is not earlier than the start date
+    #         if end_date < start_date:
+    #             raise ValueError("End date must not be earlier than start date.")
+    #         break
+    #     except ValueError as e:
+    #         # Inform the user about the invalid input and prompt again
+    #         print(f"Invalid input: {e}")
 
     # Step 4: Return the collected and validated inputs
     return {
         "latitude": lat,
         "longitude": long,
-        "start_date": start_date,
-        "end_date": end_date,
+        "start_date": start_date
+        # "end_date": end_date,
     }
 
 # Get weather data from API

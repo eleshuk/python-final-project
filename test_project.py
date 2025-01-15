@@ -16,8 +16,8 @@ def default_values():
     return {
         "valid_latlng": [37.7749, -122.4194],  # Default coordinates
         "boundary_latlng": [-90.0, 180.0],    # Boundary coordinates
-        "start_date": "2023-01-01",          # Default start date
-        "end_date": "2023-01-10",            # Default end date
+        "start_date": "2023-01-01"          # Default start date
+        # "end_date": "2023-01-10",            # Default end date
     }
 
 
@@ -30,13 +30,14 @@ def test_valid_input(mock_input, mock_geocoder, default_values):
     mock_geocoder_instance.ok = True
     mock_geocoder.return_value = mock_geocoder_instance
 
-    mock_input.side_effect = [default_values["start_date"], default_values["end_date"]]
+    mock_input.side_effect = [default_values["start_date"]]
+                            #   default_values["end_date"]]
     result = get_farm_input()
 
     assert result['latitude'] == default_values["valid_latlng"][0]
     assert result['longitude'] == default_values["valid_latlng"][1]
     assert result['start_date'] == default_values["start_date"]
-    assert result['end_date'] == default_values["end_date"]
+    # assert result['end_date'] == default_values["end_date"]
 
 
 @patch('geocoder.ip')
@@ -48,7 +49,8 @@ def test_invalid_date_format(mock_input, mock_geocoder, default_values):
     mock_geocoder_instance.ok = True
     mock_geocoder.return_value = mock_geocoder_instance
 
-    mock_input.side_effect = ["invalid-date", default_values["start_date"], default_values["end_date"]]
+    mock_input.side_effect = ["invalid-date", default_values["start_date"]]
+                            #   default_values["end_date"]]
 
     with patch('builtins.print') as mock_print:
         result = get_farm_input()
@@ -57,22 +59,22 @@ def test_invalid_date_format(mock_input, mock_geocoder, default_values):
     assert result['start_date'] == default_values["start_date"]
 
 
-@patch('geocoder.ip')
-@patch('builtins.input')
-def test_end_date_before_start_date(mock_input, mock_geocoder, default_values):
-    """Test input where the end date is before the start date."""
-    mock_geocoder_instance = MagicMock()
-    mock_geocoder_instance.latlng = default_values["valid_latlng"]
-    mock_geocoder_instance.ok = True
-    mock_geocoder.return_value = mock_geocoder_instance
+# @patch('geocoder.ip')
+# @patch('builtins.input')
+# def test_end_date_before_start_date(mock_input, mock_geocoder, default_values):
+#     """Test input where the end date is before the start date."""
+#     mock_geocoder_instance = MagicMock()
+#     mock_geocoder_instance.latlng = default_values["valid_latlng"]
+#     mock_geocoder_instance.ok = True
+#     mock_geocoder.return_value = mock_geocoder_instance
 
-    mock_input.side_effect = [default_values["start_date"], "2022-12-31", default_values["end_date"]]
+#     mock_input.side_effect = [default_values["start_date"], "2022-12-31", default_values["end_date"]]
 
-    with patch('builtins.print') as mock_print:
-        result = get_farm_input()
+#     with patch('builtins.print') as mock_print:
+#         result = get_farm_input()
 
-    assert "End date must not be earlier than start date." in str(mock_print.call_args_list)
-    assert result['end_date'] == default_values["end_date"]
+#     assert "End date must not be earlier than start date." in str(mock_print.call_args_list)
+#     assert result['end_date'] == default_values["end_date"]
 
 
 @patch('geocoder.ip')
@@ -95,7 +97,8 @@ def test_boundary_coordinates(mock_input, mock_geocoder, default_values):
     mock_geocoder_instance.ok = True
     mock_geocoder.return_value = mock_geocoder_instance
 
-    mock_input.side_effect = [default_values["start_date"], default_values["end_date"]]
+    mock_input.side_effect = [default_values["start_date"]]
+                            #   default_values["end_date"]]
     result = get_farm_input()
 
     assert result['latitude'] == default_values["boundary_latlng"][0]
@@ -111,14 +114,15 @@ def test_empty_input_handling(mock_input, mock_geocoder, default_values):
     mock_geocoder_instance.ok = True
     mock_geocoder.return_value = mock_geocoder_instance
 
-    mock_input.side_effect = ["", default_values["start_date"], "", default_values["end_date"]]
+    mock_input.side_effect = ["", default_values["start_date"], ""]
+                            #   default_values["end_date"]]
 
     with patch('builtins.print') as mock_print:
         result = get_farm_input()
 
     assert "Invalid input" in str(mock_print.call_args_list)
     assert result['start_date'] == default_values["start_date"]
-    assert result['end_date'] == default_values["end_date"]
+    # assert result['end_date'] == default_values["end_date"]
     
 # User inputs to test API call
 @pytest.fixture

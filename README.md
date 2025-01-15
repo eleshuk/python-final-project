@@ -4,7 +4,10 @@ Once data is loaded, the data is analyzed in various ways, as outlined in the fo
 
 ## project.py
 **main()**  
-project.py contains the **main()** function, a function to get the user's information, including a start date to start the date range to get weather data. The end date is date.today() and so no input is required from the user. It also contains a class to get the location data from GEO API, which returns the municipality the user is in. 
+project.py contains the **main()** function, a function to get the user's information, including a start date to start the date range to get weather data. The end date is date.today() and so no input is required from the user. This limits the user inputs requirements, making the code easier and more efficient to run. All functions in this project are called from the **main()** function to ensure consistency and organization throughout the project. 
+
+**Getting Farm Inputs**  
+**get_farm_input()** obtains a user's latitude and longitude using the GEO API, which returns the municipality the user is in.
 
 **Weather data analysis**  
 The file contains a class and methods to get historical weather data from the Open-Meteo API, and gives the user the option to output this weather data as a CSV. The option to export the data as a CSV is presented as an argument in the **export_weather_data()** function, called within the main function. If the argument to export is *True*, then the user will be prompted to select a destination for their CSV file via a GUI which runs with tkinter. 

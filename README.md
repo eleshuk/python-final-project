@@ -5,7 +5,9 @@ Once data is loaded, the data is analyzed in various ways, as outlined in the fo
 ## project.py
 ### main()
 project.py contains the **main()** function, which initiates the process of getting a user's information. This includes a start date to start the date range to get weather data. The end date is date.today(), so no further input is required from the user. This limits the user inputs requirements, making the code easier and more efficient to run.  
+
 All functions in this project are called from the **main()** function to ensure consistency and organization throughout the project. The main function calls functions in project.py as well as several temperature analysis functions in their respective files. These were put in their own files to reduce the size of project.py, and increase the ease of readability of each file.  
+
 Several functions throughout this project print information, including the municipality, temperature analysis, and precipitation analysis. These results output into the user's terminal, allowing them to view quick statistics about temperature and precipitation througout the duration of their selected date range. 
 
 ### Getting Farm Inputs
@@ -30,11 +32,16 @@ Contains all of the test cases for project.py, which were tested with pytest.
 
 ### Tests
 #### Test user inputs
-**default_values()**, **test_valid_input()**, and **test_invalid_date_format** test that the user inputs are being acquired and handled correctly.  
+**default_values()**, **test_valid_input()**, **test_invalid_date_format()**, and **test_boundary_coordinates()** test that the user inputed dates being acquired and handled correctly, and that latitude and longitude obtained from the GEO API is within the defined boundaries.
 
-#### Test That API Returns Expected Data
+#### Test that coordinates are being obtained correctly
+**test_geocoder_failure()** and **test_boundary_coordinates()** check that geocoder successfully able to get a user's coordinates. 
+
+#### Test that API returns expected data
 **test_api_returns_expected_data()** tests that the API is being called properly by mocking the API call and producing a set of mock weather data. The results from the mocked weather API are then compared to the data output by the real API with the same date range and the API checks that the data is aligned.
 
+#### Test data cleaning
+**test_data_cleaning()** checks that the data returned by the **get_weather_data()** function is properly formatted and matches the expected layout. 
 
 ## precipitaton_analysis.py
 

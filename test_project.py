@@ -1,8 +1,7 @@
 import pytest
-from project import weatherData, get_farm_input, weather_data_plot
+from project import weatherData, get_farm_input, locationData
 import responses
 import pandas as pd
-import matplotlib.pyplot as plt
 import unittest
 from unittest.mock import patch, MagicMock
 import requests
@@ -17,7 +16,6 @@ def default_values():
         "valid_latlng": [37.7749, -122.4194],  # Default coordinates
         "boundary_latlng": [-90.0, 180.0],    # Boundary coordinates
         "start_date": "2023-01-01"          # Default start date
-        # "end_date": "2023-01-10",            # Default end date
     }
 
 
@@ -57,24 +55,6 @@ def test_invalid_date_format(mock_input, mock_geocoder, default_values):
 
     assert "Invalid date format. Please use YYYY-MM-DD." in str(mock_print.call_args_list)
     assert result['start_date'] == default_values["start_date"]
-
-
-# @patch('geocoder.ip')
-# @patch('builtins.input')
-# def test_end_date_before_start_date(mock_input, mock_geocoder, default_values):
-#     """Test input where the end date is before the start date."""
-#     mock_geocoder_instance = MagicMock()
-#     mock_geocoder_instance.latlng = default_values["valid_latlng"]
-#     mock_geocoder_instance.ok = True
-#     mock_geocoder.return_value = mock_geocoder_instance
-
-#     mock_input.side_effect = [default_values["start_date"], "2022-12-31", default_values["end_date"]]
-
-#     with patch('builtins.print') as mock_print:
-#         result = get_farm_input()
-
-#     assert "End date must not be earlier than start date." in str(mock_print.call_args_list)
-#     assert result['end_date'] == default_values["end_date"]
 
 
 @patch('geocoder.ip')
@@ -227,38 +207,6 @@ def test_data_cleaning(mock_response, user_inputs):
 # Add the folder to sys.path
 sys.path.append(str(Path(__file__).parent.parent / "python-final-project"))
 
-# @patch("tkinter.filedialog.askdirectory")
-# @patch("project.weatherData.get_weather_data")  # Adjust module path
-# def test_export_weather_data_with_export_true(mock_get_weather_data, mock_askdirectory, user_inputs):
-#     # Mock askdirectory to return a specific directory
-#     mock_askdirectory.return_value = "/test/output/directory/"
-
-#     # Mock DataFrame
-#     mock_df = MagicMock(spec=pd.DataFrame)
-#     mock_df.to_csv = MagicMock()
-
-#     # Mock get_weather_data to return the mocked DataFrame
-#     mock_get_weather_data.return_value = mock_df
-
-#     # Instantiate the weatherData class
-#     obj = weatherData(user_inputs)
-
-#     # Call the method
-#     obj.export_weather_data(export=True)
-
-#     # Debugging output
-#     print(f"askdirectory called: {mock_askdirectory.call_count}")
-#     print(f"get_weather_data called: {mock_get_weather_data.call_count}")
-#     print(f"to_csv calls: {mock_df.to_csv.call_args_list}")
-
-#     # Expected path
-#     expected_path = str(Path("/test/output/directory/").resolve() / "weather_data.csv")
-#     print(f"Expected path: {expected_path}")
-
-#     # Assertions
-#     mock_askdirectory.assert_called_once()
-#     mock_get_weather_data.assert_called_once()
-#     mock_df.to_csv.assert_called_once_with(expected_path, index=False)
 # Test to check whether the export function is working properly
 @patch("tkinter.filedialog.askdirectory")
 @patch("project.weatherData.get_weather_data")  # Adjust module path
@@ -318,32 +266,68 @@ def test_export_weather_data_with_export_false(mock_get_weather_data, mock_to_cs
     mock_to_csv.assert_not_called()  # Check to_csv is NOT called
 
 
-
-# Tests to ensure temperature data plot is functioning as expected
+# test location api
 @pytest.fixture
-def sample_weather_df():
-    return pd.DataFrame({
-        'Date': pd.date_range(start='2023-01-01', periods=5),
-        'TemperatureMax': [10, 12, 15, 11, 13],
-        'TemperatureMin': [5, 6, 8, 7, 6],
-        'Precipitation': [0, 0.5, 1, 0.2, 0]
-    })
+def sample_inputs():
+    return {
+        'latitude': 38.748406,
+        'longitude': -9.102984
+    }
 
-def test_weather_data_plot(sample_weather_df):
-    with patch('matplotlib.pyplot.show'):
-        result = weather_data_plot(sample_weather_df)
-    assert result == 'Plot successfully created'
+@pytest.fixture
+def location_mock_response():
+    return {"lon":-9.102984,
+            "lat":38.748406,
+            "distrito":"Lisboa",
+            "concelho":"Lisboa",
+            "freguesia":"Marvila",
+            "clima":
+                {"data_medicao":"12/01/2025",
+                 "hora_medicao":"14:00:00",
+                 "temperatura_C":18,
+                 "humidade_%":67,
+                 "pressao_hPa":1030},
+                 "altitude_m":36,
+                 "perigo_incendio":"Nulo",
+                 "perigo_inundacao":"Nulo / Informação Inexistente",
+                 "uso":"Tecido edificado contínuo predominantemente vertical",
+                 "SEC":"011",
+                 "SS":"06",
+                 "rua":"Rua Fernando Maurício",
+                 "n_porta":"30",
+                 "CP":"1950-449"}
 
-def test_weather_data_plot_empty_dataframe():
-    empty_df = pd.DataFrame(columns=['Date', 'TemperatureMax', 'TemperatureMin', 'Precipitation'])
-    with patch('matplotlib.pyplot.show'):
-        result = weather_data_plot(empty_df)
-    assert result == 'Plot successfully created'
+# test the locationDate class
+@patch('requests.get')
+def test_get_location_data(self, mock_get, sample_inputs, location_mock_response):
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = location_mock_response
 
-def test_weather_data_plot_exception_handling():
-    invalid_df = pd.DataFrame({'InvalidColumn': [1, 2, 3]})
-    with pytest.raises(KeyError):
-        weather_data_plot(invalid_df)
+    location = locationData(sample_inputs)
+    result = location.get_location_data()
+
+    assert result == location_mock_response
+    mock_get.assert_called_once_with(f"https://json.geoapi.pt/gps/{sample_inputs['latitude']},{sample_inputs['longitude']}")
+
+@patch('requests.get')
+def test_get_freguesia(self, mock_get, sample_inputs, location_mock_response):
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = location_mock_response
+
+    location = locationData(sample_inputs)
+    result = location.get_freguesia()
+
+    assert result == 'Marvila'
+
+@patch('requests.get')
+def test_get_location_data_error(self, mock_get, sample_inputs):
+    mock_get.return_value.status_code = 404
+
+    location = locationData(sample_inputs)
+    result = location.get_location_data()
+
+    assert result == "Error: 404"
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

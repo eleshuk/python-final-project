@@ -7,58 +7,29 @@ import requests_cache
 import requests
 from retry_requests import retry
 import geocoder 
-from location_data.location_data import locationData
 import tkinter as tk
 from tkinter import filedialog
 from pathlib import Path
 from weather_analysis.precipitation_analysis import precipitation_data_avg, precipitation_quick_stats
 from temp_analysis.temp_analysis import run_full_analysis
-# from plot_toggling.plot import run_weather_plot_viewer
-
-
 
 def main():
-    farm_data = get_farm_input()  # Collect user input
+    farm_data = get_farm_input()  # Get user location and start date for weather analysis
+    location = locationData(farm_data)
+    municipality = location.get_municipality()
+    print(f"It looks like you're located in the municipality of {municipality}. Enjoy these details about the weather in your area:")
+    
     weather = weatherData(farm_data)  # Fetch weather data
     daily_weather_df = weather.get_weather_data()  # Get DataFrame of weather data
-
-    if daily_weather_df is None or daily_weather_df.empty:
-        print("No weather data was retrieved. Please check your inputs or API connectivity.")
-        return
-
     weather.export_weather_data(export=False)  # Optionally export the data
-
-# Analyze temperature data
-    run_full_analysis(daily_weather_df)
-
-    # Precipitation data
+    
+    # Precipitation data analysis
     precipitation_data_avg(daily_weather_df)
     precip_data = precipitation_data_avg(daily_weather_df)
     precipitation_quick_stats(precip_data)
-    location = locationData(farm_data)
-    freguesia = location.get_freguesia()
-    print(f"It looks like you're located in the freguesia of {freguesia}. Enjoy this weather plot of your area!")
-    weather_data_plot(weather_df=daily_weather_df)
-
-    # Location
-    print("\n### Location Information ###")
-    try:
-        location = locationData(farm_data)
-        freguesia = location.get_freguesia()
-        if freguesia:
-            print(f"It looks like you're located in the freguesia of {freguesia}. Enjoy this weather plot of your area!")
-        else:
-            print("Could not determine the freguesia for your location.")
-    except Exception as e:
-        print(f"Failed to retrieve location data: {e}")
-
-
-    # # Adicionar interface gráfica para exibir os gráficos
-    # print("\n### Launching Weather Plot Viewer ###")
-    # try:
-    #     run_weather_plot_viewer(daily_weather_df)
-    # except Exception as e:
-    #     print(f"Failed to launch weather plot viewer: {e}")
+    
+    # Temperature data analysis
+    run_full_analysis(daily_weather_df)
 
 def get_farm_input():
     """
@@ -87,26 +58,11 @@ def get_farm_input():
             # Inform the user about the invalid format and prompt again
             print("Invalid date format. Please use YYYY-MM-DD.")
 
-    # Step 3: Prompt user for the end date and validate input
-    # while True:
-    #     try:
-    #         end_date = input("Enter end date (YYYY-MM-DD): ")
-    #         # Validate the date format
-    #         datetime.strptime(end_date, "%Y-%m-%d")
-    #         # Check if the end date is not earlier than the start date
-    #         if end_date < start_date:
-    #             raise ValueError("End date must not be earlier than start date.")
-    #         break
-    #     except ValueError as e:
-    #         # Inform the user about the invalid input and prompt again
-    #         print(f"Invalid input: {e}")
-
     # Step 4: Return the collected and validated inputs
     return {
         "latitude": lat,
         "longitude": long,
         "start_date": start_date
-        # "end_date": end_date,
     }
 
 # Get weather data from API
@@ -115,7 +71,6 @@ class weatherData:
         # Initialize instance attributes
         self.latitude = inputs['latitude']
         self.longitude = inputs['longitude']
-        # self.start_date = '2023-06-01'
         self.start_date = inputs['start_date']
         self.end_date = date.today()
         
@@ -205,29 +160,33 @@ class weatherData:
         else:
             pass
 
+# Get location data from Geo API
+class locationData:
+    def __init__(self, inputs):
+        # Initialize instance attributes
+        self.latitude = inputs['latitude']
+        self.longitude = inputs['longitude']
+        
+        # Set up the GEO API client with caching and retries
+        self.cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
+        self.retry_session = retry(self.cache_session, retries=5, backoff_factor=0.2)
+        self.base_url = "https://json.geoapi.pt/gps"
 
-'''
-input: a dataframe of weather across a date range, for a specific location
-output: plot of max temperature, and min temperature
-'''
-def weather_data_plot(weather_df):
-    # create the plot
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.plot(weather_df["Date"], weather_df["TemperatureMax"], label="TemperatureMax")
-    ax.plot(weather_df["Date"], weather_df["TemperatureMin"], label="TemperatureMin")
-    
-    # Set the x-axis to display a limited number of dates
-    ax.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=20))
-    
-    # Rotate and align the tick labels so they look better
-    fig.autofmt_xdate()
-
-    # customise and show the plot
-    plt.xlabel("Date")
-    plt.ylabel("Temperature (C)")
-    plt.tight_layout()
-    plt.show()
-    return 'Plot successfully created'
+    # make api request fpr latitude and longitude
+    def get_location_data(self):
+        # Make the API request
+        url = f"{self.base_url}/{self.latitude},{self.longitude}"
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return f"Error: {response.status_code}"
+        
+    # get freguesia name from json
+    def get_municipality(self):
+        result = self.get_location_data()['concelho']
+        return result
 
 if __name__ == "__main__":
     main()

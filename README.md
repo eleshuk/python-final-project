@@ -3,7 +3,7 @@ This project uses a user's IP address to obtain historical weather based on the 
 Once data is loaded, the data is analyzed in various ways, as outlined in the following Python files. 
 
 ## project.py
-**main()**  
+#### main()
 project.py contains the **main()** function, a function to get the user's information, including a start date to start the date range to get weather data. The end date is date.today() and so no input is required from the user. This limits the user inputs requirements, making the code easier and more efficient to run. All functions in this project are called from the **main()** function to ensure consistency and organization throughout the project. 
 
 **Getting Farm Inputs**  

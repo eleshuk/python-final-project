@@ -1,7 +1,5 @@
 from datetime import datetime, date
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 import openmeteo_requests
 import requests_cache
 import requests

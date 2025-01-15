@@ -3,7 +3,7 @@ This project uses a user's IP address to obtain historical weather based on the 
 
 The long-term goal of this project is to be able to incorporate it into an interactive tool that includes a highly localized analysis of historical weather data for farmers across Portugal and beyond. By creating this tool, we aim to provide insights into best practices for sustainable agriculture through not only climate pattern related insights, but through other agricultural methods as well.  
 
-Once data is loaded, the data is analyzed in various ways, as outlined in the following Python files.  
+Data is loaded and data is analyzed in various ways, as outlined in the following Python files.  
 
 ## project.py
 ### Main Function

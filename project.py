@@ -13,7 +13,7 @@ from tkinter import filedialog
 from pathlib import Path
 from weather_analysis.precipitation_analysis import precipitation_data_avg, precipitation_quick_stats
 from temp_analysis.temp_analysis import run_full_analysis
-from plot_toggling.plot import run_weather_plot_viewer
+# from plot_toggling.plot import run_weather_plot_viewer
 
 
 
@@ -53,12 +53,12 @@ def main():
         print(f"Failed to retrieve location data: {e}")
 
 
-    # Adicionar interface gráfica para exibir os gráficos
-    print("\n### Launching Weather Plot Viewer ###")
-    try:
-        run_weather_plot_viewer(daily_weather_df)
-    except Exception as e:
-        print(f"Failed to launch weather plot viewer: {e}")
+    # # Adicionar interface gráfica para exibir os gráficos
+    # print("\n### Launching Weather Plot Viewer ###")
+    # try:
+    #     run_weather_plot_viewer(daily_weather_df)
+    # except Exception as e:
+    #     print(f"Failed to launch weather plot viewer: {e}")
 
 def get_farm_input():
     """

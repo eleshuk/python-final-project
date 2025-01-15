@@ -34,17 +34,22 @@ def precipitation_data_avg(data):
 # Precipitation quickstats
 def precipitation_quick_stats(data):
     # Calculate additional stats
+    # Get max precipitation
     max_precipitation = data['Precipitation'].max()
+    # Get min precipitation
     min_precipitation = data['Precipitation'].min()
+    # Get date with max precip
     day_most_rain = data.loc[data['Precipitation'].idxmax(), 'Date']
+    # get date with min precip
     day_least_rain = data.loc[data['Precipitation'].idxmin(), 'Date']
-        # Return results as a dictionary
+    # Return results as a dictionary
     stats =  {
         'max_precipitation': max_precipitation,
         'min_precipitation': min_precipitation,
         'day_most_rain': day_most_rain,
         'day_least_rain': day_least_rain
     }
+    # Convert to df
     stats_df = pd.DataFrame([stats])
     print("Precipitation quick stats:")
     print(stats_df)

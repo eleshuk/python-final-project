@@ -27,13 +27,6 @@ def main():
 
     weather.export_weather_data(export=False)  # Optionally export the data
 
-    # Adicionar interface gráfica para exibir os gráficos
-    print("\n### Launching Weather Plot Viewer ###")
-    try:
-        run_weather_plot_viewer(daily_weather_df)
-    except Exception as e:
-        print(f"Failed to launch weather plot viewer: {e}")
-
 # Analyze temperature data
     run_full_analysis(daily_weather_df)
 
@@ -52,13 +45,13 @@ def main():
     except Exception as e:
         print(f"Failed to retrieve location data: {e}")
 
-    # Additional weather plot
-    print("\n### Generating Additional Weather Plot ###")
-    try:
-        weather_data_plot(weather_df=daily_weather_df)
-    except Exception as e:
-        print(f"Failed to generate additional weather plot: {e}")
 
+    # Adicionar interface gráfica para exibir os gráficos
+    print("\n### Launching Weather Plot Viewer ###")
+    try:
+        run_weather_plot_viewer(daily_weather_df)
+    except Exception as e:
+        print(f"Failed to launch weather plot viewer: {e}")
 
 def get_farm_input():
     """

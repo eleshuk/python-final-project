@@ -63,7 +63,7 @@ class TemperatureAnalyzer:
         plt.xticks(rotation=45)
 
         plt.tight_layout()
-        plt.show()
+        # plt.show()
 
     def plot_temperature_trends(self, figsize=(12, 6)):
         """
@@ -86,7 +86,7 @@ class TemperatureAnalyzer:
         plt.xticks(rotation=45)
 
         plt.tight_layout()
-        plt.show()
+        # plt.show()
 
 
 def run_full_analysis(daily_weather_df):

@@ -48,12 +48,10 @@ Contains all of the test cases for project.py, which were tested with pytest.
 #### Test data cleaning
 **test_data_cleaning()** checks that the data returned by the **get_weather_data()** function is properly formatted and matches the expected layout. 
 
-## precipitaton_analysis.py
+#### Test precipitation analysis
+**test_precipitation_data_avg()** checks that the sliding window mean analysis is being performed properly and the temperature columns are not being included in the final output. 
 
 
-
-## test_precipitation.py
-Contains one test that is applied to the precipitation analysis code. 
 
 
 

@@ -15,7 +15,7 @@ Several methods print information, including the municipality, temperature analy
 ## test_project.py
 Contains all of the test cases for project.py, which were tested with pytest.
 
-test_api_returns_expected_data() tests that the API is being called properly by mocking the API call and producing a set of mock weather data. The results from the mocked weather API are then compared to the data output by the real API with the same date range and the API checks that the data is aligned.  
+test_api_returns_expected_data() tests that the API is being called properly by mocking the API call and producing a set of mock weather data. The results from the mocked weather API are then compared to the data output by the real API with the same date range and the API checks that the data is aligned.
 
 ## precipitaton_analysis.py
 Contains two methods, one which adds a Rolling Average field to the dataframe and removes temperature fields, and the other which uses this dataframe to calculate maximum and minimum precipitations and the day with most rain and with least rain. 
@@ -26,7 +26,8 @@ Initially when this code was written, the min_periods was not set, which resulte
 Contains four functions, one that calculates the descriptive statistics, one that calculates the range in daily temperature, one that calculates extreme hot and cold temperatures, and lastly one that is used to call the other three functions. 
 
 ## test_precipitation.py
-Contains tests applied to the precipitation analysis code. 
+Contains one test that is applied to the precipitation analysis code. 
 
-The two tests 
+
+
 

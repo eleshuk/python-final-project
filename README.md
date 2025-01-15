@@ -14,12 +14,17 @@ Several functions throughout this project print information, including the munic
 **get_farm_input()** obtains a user's latitude and longitude using the GEO API, which returns the municipality the user is in.
 
 ### Weather data analysis
-The file contains a class and methods to get historical weather data from the Open-Meteo API, and gives the user the option to output this weather data as a CSV. The option to export the data as a CSV is presented as an argument in the **export_weather_data()** function, called within the main function. If the argument to export is *True*, then the user will be prompted to select a destination for their CSV file via a GUI which runs with tkinter. If *False* this feature is skipped. 
+The file contains a class and methods to get historical weather data from the Open-Meteo API, and gives the user the option to output this weather data as a CSV. The option to export the data as a CSV is presented as an argument in the **export_weather_data()** function, called within the main function. If the argument to export is *True*, then the user will be prompted to select a destination for their CSV file via a GUI which runs with tkinter. If *False* this feature is skipped.
+
+### Temperature Data 
+temp_analysis.py
+Contains four functions, one that calculates the descriptive statistics, one that calculates the range in daily temperature, one that calculates extreme hot and cold temperatures, and lastly one that is used to call the other three functions.
 
 ### Precipitation Data
 The precipitation data is handled by two functions, **precipitation_data_avg()** which takes the weather data as an input and adds a Rolling Average field to the dataframe and removes temperature fields, and **precipitation_quick_stats()** which uses the output from **precipitation_data_avg()** to calculate maximum and minimum precipitation as well as the day within the date range with most rain and with least rain.  
 
 The window for the rolling averages is determined by the length of the date range selected by the user. So, if the range is less than or equal to 14 days, then a window of 3 days is applied to the calculation. This same methodology is applied to date ranges between 14 and 30 days, and greater than 30 days, but with different window sizes. Initially when this code was written, the "min_periods" (which just does the rolling average calculation with less datapoints) was not set, which resulted in NA values being produced in the dataset, however setting the min_periods to 1 fixed this issue.
+
 
 ### Functionality and Future Work
 This code does not currently output the processed data, only the data summaries. Therefore for future work, the team could build in additional features to export all data in a folder, for example. This would give users more freedom to analyze their data according to their needs. Additional future work would include the ability to output a PDF report with all of the results presented neatly.  
@@ -45,8 +50,7 @@ Contains all of the test cases for project.py, which were tested with pytest.
 
 ## precipitaton_analysis.py
 
-## temp_analysis.py
-Contains four functions, one that calculates the descriptive statistics, one that calculates the range in daily temperature, one that calculates extreme hot and cold temperatures, and lastly one that is used to call the other three functions.
+
 
 ## test_precipitation.py
 Contains one test that is applied to the precipitation analysis code. 

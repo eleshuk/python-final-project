@@ -14,6 +14,7 @@ from precipitation_analysis.precipitation_analysis import precipitation_data_avg
 from temp_analysis.temp_analysis import run_full_analysis
 
 def main():
+    print("Welcome to this weather analysis tool. It will help you learn about the weather in your area")
     farm_data = get_farm_input()  # Get user location and start date for weather analysis
     location = locationData(farm_data)
     municipality = location.get_municipality()
@@ -31,6 +32,7 @@ def main():
     # Temperature data analysis
     run_full_analysis(daily_weather_df)
 
+import geocoder 
 def get_farm_input():
     """
     Collect and validate GPS coordinates from the user's IP, start date, and end date.
@@ -50,13 +52,15 @@ def get_farm_input():
     # Step 2: Prompt user for the start date and validate input
     while True:
         try:
-            start_date = input("Enter start date (YYYY-MM-DD): ")
+            start_date = input("Enter start date of weather analysis (YYYY-MM-DD): ")
             # Validate the date format
             datetime.strptime(start_date, "%Y-%m-%d")
             break
         except ValueError:
             # Inform the user about the invalid format and prompt again
             print("Invalid date format. Please use YYYY-MM-DD.")
+
+    print("The end date for analysis will be today's date")
 
     # Step 4: Return the collected and validated inputs
     return {

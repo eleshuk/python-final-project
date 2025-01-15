@@ -10,7 +10,7 @@ import geocoder
 import tkinter as tk
 from tkinter import filedialog
 from pathlib import Path
-from weather_analysis.precipitation_analysis import precipitation_data_avg, precipitation_quick_stats
+from precipitation_analysis.precipitation_analysis import precipitation_data_avg, precipitation_quick_stats
 from temp_analysis.temp_analysis import run_full_analysis
 
 def main():

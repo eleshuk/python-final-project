@@ -22,7 +22,7 @@ def main():
     
     weather = weatherData(farm_data)  # Fetch weather data
     daily_weather_df = weather.get_weather_data()  # Get DataFrame of weather data
-    weather.export_weather_data(export=False)  # Optionally export the data
+    weather.export_weather_data(export=True)  # Optionally export the data
     
     # Precipitation data analysis
     precipitation_data_avg(daily_weather_df)

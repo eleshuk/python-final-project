@@ -1,7 +1,7 @@
 # Ignore compiled Python bytecode files
 *.pyc
 # Ignore Python cache directories
-__pycache__/
+/__pycache__/
 .pytest_cache
 .cache.sqlite
 # Ignore environment-specific settings

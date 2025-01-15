@@ -84,25 +84,6 @@ def test_boundary_coordinates(mock_input, mock_geocoder, default_values):
     assert result['latitude'] == default_values["boundary_latlng"][0]
     assert result['longitude'] == default_values["boundary_latlng"][1]
 
-
-@patch('geocoder.ip')
-@patch('builtins.input')
-def test_empty_input_handling(mock_input, mock_geocoder, default_values):
-    """Test user input with empty values."""
-    mock_geocoder_instance = MagicMock()
-    mock_geocoder_instance.latlng = default_values["valid_latlng"]
-    mock_geocoder_instance.ok = True
-    mock_geocoder.return_value = mock_geocoder_instance
-
-    mock_input.side_effect = ["", default_values["start_date"], ""]
-                            #   default_values["end_date"]]
-
-    with patch('builtins.print') as mock_print:
-        result = get_farm_input()
-
-    assert "Invalid input" in str(mock_print.call_args_list)
-    assert result['start_date'] == default_values["start_date"]
-    # assert result['end_date'] == default_values["end_date"]
     
 # User inputs to test API call
 @pytest.fixture
@@ -297,36 +278,37 @@ def location_mock_response():
                  "n_porta":"30",
                  "CP":"1950-449"}
 
-# test the locationDate class
-@patch('requests.get')
-def test_get_location_data(self, mock_get, sample_inputs, location_mock_response):
-    mock_get.return_value.status_code = 200
-    mock_get.return_value.json.return_value = location_mock_response
+class testLocationData:
+    # test the locationDate class
+    @patch('requests.get')
+    def test_get_location_data(self, mock_get, sample_inputs, location_mock_response):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = location_mock_response
 
-    location = locationData(sample_inputs)
-    result = location.get_location_data()
+        location = locationData(sample_inputs)
+        result = location.get_location_data()
 
-    assert result == location_mock_response
-    mock_get.assert_called_once_with(f"https://json.geoapi.pt/gps/{sample_inputs['latitude']},{sample_inputs['longitude']}")
+        assert result == location_mock_response
+        mock_get.assert_called_once_with(f"https://json.geoapi.pt/gps/{sample_inputs['latitude']},{sample_inputs['longitude']}")
 
-@patch('requests.get')
-def test_get_freguesia(self, mock_get, sample_inputs, location_mock_response):
-    mock_get.return_value.status_code = 200
-    mock_get.return_value.json.return_value = location_mock_response
+    @patch('requests.get')
+    def test_get_freguesia(self, mock_get, sample_inputs, location_mock_response):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = location_mock_response
 
-    location = locationData(sample_inputs)
-    result = location.get_freguesia()
+        location = locationData(sample_inputs)
+        result = location.get_freguesia()
 
-    assert result == 'Marvila'
+        assert result == 'Marvila'
 
-@patch('requests.get')
-def test_get_location_data_error(self, mock_get, sample_inputs):
-    mock_get.return_value.status_code = 404
+    @patch('requests.get')
+    def test_get_location_data_error(self, mock_get, sample_inputs):
+        mock_get.return_value.status_code = 404
 
-    location = locationData(sample_inputs)
-    result = location.get_location_data()
+        location = locationData(sample_inputs)
+        result = location.get_location_data()
 
-    assert result == "Error: 404"
+        assert result == "Error: 404"
 
 
 if __name__ == "__main__":

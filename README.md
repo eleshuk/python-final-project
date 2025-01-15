@@ -23,7 +23,7 @@ The window for the rolling averages is determined by the length of the date rang
 Initially when this code was written, the min_periods was not set, which resulted in NA values being produced in the dataset, however setting the min_periods to 1 fixed this issue. This same methodology is applied to date ranges between 14 and 30 days, and greater than 30 days. 
 
 ## temp_analysis.py
-Contains four functions, one that calculates the descriptive statistics, one that calculates the range in daily temperature, one that calculates extreme hot and cold temperatures, and lastly one that is used to call the other three functions. 
+Contains four functions, one that calculates the descriptive statistics, one that calculates the range in daily temperature, one that calculates extreme hot and cold temperatures, and lastly one that is used to call the other three functions.
 
 ## test_precipitation.py
 Contains one test that is applied to the precipitation analysis code. 

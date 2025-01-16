@@ -179,8 +179,6 @@ class weatherData:
                 print(f"Output path set to: {output_dir}")
 
                 # Define the full file path (directory + file name)
-                today = date.today()
-                # output_file = output_dir /  "_weather_data.csv"
                 date_str = datetime.now().strftime("%Y-%m-%d")  # Format: YYYY-MM-DD
                 output_file = output_dir / f"{date_str}_weather_data.csv"
 

@@ -4,6 +4,7 @@ import pandas as pd
 from unittest.mock import patch, MagicMock
 from pathlib import Path
 import sys
+from datetime import datetime
 
 
 @pytest.fixture
@@ -20,19 +21,22 @@ def default_values():
 @patch('builtins.input')
 def test_valid_input(mock_input, mock_geocoder, default_values):
     """Test user input with valid values."""
+    # Create mock geocoder instance with mocked lat and long given the parameters from default_values 
     mock_geocoder_instance = MagicMock()
     mock_geocoder_instance.latlng = default_values["valid_latlng"]
     mock_geocoder_instance.ok = True
     mock_geocoder.return_value = mock_geocoder_instance
 
+    # Mock user inputs
     mock_input.side_effect = [default_values["start_date"]]
-                            #   default_values["end_date"]]
+
+    # Inputs are generated the patche decorators
     result = get_farm_input()
 
+    # Check that the results from farm inputs match the mocked data
     assert result['latitude'] == default_values["valid_latlng"][0]
     assert result['longitude'] == default_values["valid_latlng"][1]
     assert result['start_date'] == default_values["start_date"]
-    # assert result['end_date'] == default_values["end_date"]
 
 
 @patch('geocoder.ip')
@@ -80,6 +84,38 @@ def test_boundary_coordinates(mock_input, mock_geocoder, default_values):
 
     assert result['latitude'] == default_values["boundary_latlng"][0]
     assert result['longitude'] == default_values["boundary_latlng"][1]
+
+class testLocationData:
+    # test the locationDate class
+    @patch('requests.get')
+    def test_get_location_data(self, mock_get, sample_inputs, location_mock_response):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = location_mock_response
+
+        location = locationData(sample_inputs)
+        result = location.get_location_data()
+
+        assert result == location_mock_response
+        mock_get.assert_called_once_with(f"https://json.geoapi.pt/gps/{sample_inputs['latitude']},{sample_inputs['longitude']}")
+
+    @patch('requests.get')
+    def test_get_freguesia(self, mock_get, sample_inputs, location_mock_response):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = location_mock_response
+
+        location = locationData(sample_inputs)
+        result = location.get_freguesia()
+
+        assert result == 'Marvila'
+
+    @patch('requests.get')
+    def test_get_location_data_error(self, mock_get, sample_inputs):
+        mock_get.return_value.status_code = 404
+
+        location = locationData(sample_inputs)
+        result = location.get_location_data()
+
+        assert result == "Error: 404"
 
     
 # User inputs to test API call
@@ -211,7 +247,9 @@ def test_export_weather_data_with_export_true(mock_get_weather_data, mock_askdir
     print(f"to_csv calls: {mock_df.to_csv.call_args_list}")
 
     # Fix: Normalize the paths for comparison
-    expected_path = str(Path("/test/output/directory/").resolve() / "weather_data.csv")
+    # Define the date format used in the function
+    date_str = datetime.now().strftime("%Y-%m-%d")  # Format: YYYY-MM-DD
+    expected_path = str(Path("/test/output/directory/").resolve() / f"{date_str}_weather_data.csv")
     actual_path = mock_df.to_csv.call_args[0][0]  # The first positional argument to to_csv
 
     print(f"Expected path: {expected_path}")
@@ -322,37 +360,6 @@ def location_mock_response():
                  "n_porta":"30",
                  "CP":"1950-449"}
 
-class testLocationData:
-    # test the locationDate class
-    @patch('requests.get')
-    def test_get_location_data(self, mock_get, sample_inputs, location_mock_response):
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = location_mock_response
-
-        location = locationData(sample_inputs)
-        result = location.get_location_data()
-
-        assert result == location_mock_response
-        mock_get.assert_called_once_with(f"https://json.geoapi.pt/gps/{sample_inputs['latitude']},{sample_inputs['longitude']}")
-
-    @patch('requests.get')
-    def test_get_freguesia(self, mock_get, sample_inputs, location_mock_response):
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = location_mock_response
-
-        location = locationData(sample_inputs)
-        result = location.get_freguesia()
-
-        assert result == 'Marvila'
-
-    @patch('requests.get')
-    def test_get_location_data_error(self, mock_get, sample_inputs):
-        mock_get.return_value.status_code = 404
-
-        location = locationData(sample_inputs)
-        result = location.get_location_data()
-
-        assert result == "Error: 404"
 
 
 if __name__ == "__main__":

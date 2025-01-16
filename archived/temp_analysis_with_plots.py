@@ -40,6 +40,55 @@ class TemperatureAnalyzer:
         
         return extreme_days
 
+    # def plot_daily_range(self, figsize=(12, 6)):
+    #     """
+    #     Plot the daily temperature range.
+    #     Parameters:
+    #     - figsize (tuple): Size of the figure (width, height).
+    #     """
+    #     if 'DailyRange' not in self.weather_df:
+    #         self.calculate_daily_range()
+
+    #     plt.figure(figsize=figsize)
+    #     plt.plot(self.weather_df['Date'], self.weather_df['DailyRange'], label="Daily Temperature Range", linestyle='-', marker='o')
+    #     plt.xlabel("Date")
+    #     plt.ylabel("Temperature Range (\u00B0C)")
+    #     plt.title("Daily Temperature Range Over Time")
+    #     plt.legend()
+    #     plt.grid(True, linestyle='--', alpha=0.7)
+
+    #     # Customize the x-axis date format
+    #     plt.gca().xaxis.set_major_locator(mdates.YearLocator())
+    #     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    #     plt.xticks(rotation=45)
+
+    #     plt.tight_layout()
+    #     # plt.show()
+
+    # def plot_temperature_trends(self, figsize=(12, 6)):
+    #     """
+    #     Plot max and min temperature trends over time.
+    #     Parameters:
+    #     - figsize (tuple): Size of the figure (width, height).
+    #     """
+    #     plt.figure(figsize=figsize)
+    #     plt.plot(self.weather_df['Date'], self.weather_df['TemperatureMax'], label="Max Temperature", color="red", linestyle='-', marker='o')
+    #     plt.plot(self.weather_df['Date'], self.weather_df['TemperatureMin'], label="Min Temperature", color="blue", linestyle='--', marker='x')
+    #     plt.xlabel("Date")
+    #     plt.ylabel("Temperature (\u00B0C)")
+    #     plt.title("Temperature Trends Over Time")
+    #     plt.legend()
+    #     plt.grid(True, linestyle='--', alpha=0.7)
+
+    #     # Customize the x-axis date format
+    #     plt.gca().xaxis.set_major_locator(mdates.YearLocator())
+    #     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    #     plt.xticks(rotation=45)
+
+    #     plt.tight_layout()
+    #     # plt.show()
+
+
 def run_full_analysis(daily_weather_df):
     """
     Perform a full temperature analysis, including descriptive statistics,
@@ -70,5 +119,10 @@ def run_full_analysis(daily_weather_df):
         else:
             print("No cold snap days found.")
 
+    #     # Plot temperature trends
+    #     analyzer.plot_temperature_trends()
+
+    #     # Plot daily temperature range
+    #     analyzer.plot_daily_range()
     except Exception as e:
         print(f"Failed to analyze temperature data: {e}")
